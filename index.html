@@ -1,0 +1,6237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#fafaf8" />
+
+  <title>Você se vê?</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d0f1b;
+      --bg-soft: #16182a;
+      --card: rgba(255,255,255,0.07);
+      --card-border: rgba(255,255,255,0.12);
+      --text: #f7f7fb;
+      --muted: #b8b9c8;
+      --accent: #b99cff;
+      --accent-2: #8fd6ff;
+      --accent-3: #f7b5df;
+      --success: #a8edc1;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(185,156,255,.15), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(143,214,255,.12), transparent 35%),
+        var(--bg);
+
+      color: var(--text);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100dvh;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: none;
+    }
+
+    .app {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(24px, env(safe-area-inset-top))
+        max(20px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(20px, env(safe-area-inset-left));
+    }
+
+    .screen {
+      width: min(760px, 100%);
+      display: none;
+      animation: fadeIn .65s ease both;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .eyebrow {
+      text-align: center;
+      color: var(--accent-2);
+      font-size: .78rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 10vw, 6rem);
+      line-height: .96;
+      text-align: center;
+      letter-spacing: -.06em;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      line-height: 1.05;
+      letter-spacing: -.04em;
+      text-align: center;
+      margin-bottom: 26px;
+    }
+
+    h3 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    p {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .lead {
+      text-align: center;
+      max-width: 650px;
+      margin: 0 auto 32px;
+    }
+
+    .highlight {
+      color: white;
+      font-weight: 650;
+    }
+
+    .accent {
+      color: var(--accent);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: clamp(24px, 5vw, 42px);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 25px 70px rgba(0,0,0,.25);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 18px 22px;
+      border-radius: 18px;
+      cursor: pointer;
+      color: #11121b;
+      background:
+        linear-gradient(
+          135deg,
+          var(--accent),
+          var(--accent-2)
+        );
+
+      font-weight: 750;
+      font-size: 1.05rem;
+      transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        opacity .18s ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(185,156,255,.18);
+    }
+
+    .btn:active {
+      transform: scale(.985);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,.08);
+      color: white;
+      border: 1px solid rgba(255,255,255,.13);
+    }
+
+    .small-note {
+      text-align: center;
+      font-size: .82rem;
+      color: #8f91a2;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .answer {
+      width: 100%;
+      text-align: left;
+      padding: 17px 19px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.07);
+      color: white;
+      border: 1px solid rgba(255,255,255,.1);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: .2s ease;
+    }
+
+    .answer:hover,
+    .answer:focus-visible {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(185,156,255,.55);
+      transform: translateY(-1px);
+    }
+
+    .progress {
+      margin-bottom: 26px;
+    }
+
+    .progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #a8a9b8;
+      font-size: .86rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(
+        90deg,
+        var(--accent),
+        var(--accent-2)
+      );
+      transition: width .5s ease;
+    }
+
+    .reflection {
+      min-height: 54dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .reflection-text {
+      font-family: Georgia, "Times New Roman", serif;
+      color: #f8f6ff;
+      font-size: clamp(1.55rem, 5vw, 2.7rem);
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .reflection-type {
+      color: #9899aa;
+      font-size: .8rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+
+    .camera-warning {
+      text-align: center;
+    }
+
+    .privacy-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(168,237,193,.12);
+      color: var(--success);
+      font-size: 2rem;
+      border: 1px solid rgba(168,237,193,.25);
+    }
+
+    .privacy-box {
+      margin: 28px 0;
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(168,237,193,.07);
+      border: 1px solid rgba(168,237,193,.15);
+      text-align: left;
+    }
+
+    .privacy-box p {
+      font-size: .96rem;
+      margin-bottom: 8px;
+    }
+
+    .privacy-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .camera-wrap {
+      position: relative;
+      width: 100%;
+      max-height: 70dvh;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      border-radius: 28px;
+      background: #07080d;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    video,
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    video {
+      transform: scaleX(-1);
+    }
+
+    canvas {
+      display: none;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,.35),
+          transparent 25%,
+          transparent 65%,
+          rgba(0,0,0,.58)
+        );
+    }
+
+    .not-saved {
+      align-self: center;
+      font-size: .84rem;
+      background: rgba(0,0,0,.5);
+      color: white;
+      padding: 9px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+    }
+
+    .camera-message {
+      text-align: center;
+      color: white;
+      font-family: Georgia, serif;
+      font-size: clamp(1.15rem, 4vw, 1.7rem);
+      line-height: 1.45;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 0 2px 12px rgba(0,0,0,.7);
+    }
+
+    .camera-actions {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .photo-caption {
+      text-align: center;
+      margin: 24px auto;
+      font-size: clamp(1.7rem, 5vw, 2.7rem);
+      line-height: 1.2;
+      font-family: Georgia, serif;
+      color: white;
+    }
+
+    .final-text {
+      white-space: pre-line;
+      text-align: center;
+      font-family: Georgia, serif;
+      color: #ededf7;
+      font-size: clamp(1.15rem, 3.5vw, 1.55rem);
+      line-height: 1.75;
+    }
+
+    .final-main {
+      margin-top: 32px;
+      text-align: center;
+      font-size: clamp(2rem, 6vw, 3.7rem);
+      line-height: 1.08;
+      letter-spacing: -.04em;
+      color: white;
+    }
+
+    .goodbye-icon {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 18px;
+    }
+
+    .error {
+      padding: 14px 16px;
+      margin-top: 14px;
+      border-radius: 14px;
+      background: rgba(255,100,120,.1);
+      border: 1px solid rgba(255,100,120,.2);
+      color: #ffc6ce;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .spacer {
+      height: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        align-items: flex-start;
+        padding-top: 28px;
+      }
+
+      .card {
+        border-radius: 22px;
+      }
+
+      .camera-wrap {
+        max-height: 65dvh;
+      }
+    }
+  </style>
+  <style>
+    /* Visual clean para a instalação em tablet */
+    :root {
+      --bg: #fafaf8;
+      --bg-soft: #f5f5f2;
+      --card: transparent;
+      --card-border: #e7e7e2;
+      --text: #242422;
+      --muted: #767672;
+      --accent: #78728d;
+      --accent-2: #78728d;
+      --accent-3: #78728d;
+      --success: #587063;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      overscroll-behavior: none;
+    }
+
+    .app {
+      padding: max(32px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+      align-items: stretch;
+    }
+
+    .screen {
+      width: min(680px, 100%);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .screen.active {
+      min-height: calc(100dvh - 64px);
+      display: grid;
+      place-items: center;
+      align-content: center;
+      animation: screenReveal .75s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    .screen > .card { width: 100%; }
+    .card { padding: 18px 8px; background: transparent; border: 0; box-shadow: none; }
+
+    @keyframes screenReveal {
+      from { transform: translateY(10px) scale(.996); }
+      to { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes gentleRise {
+      from { transform: translateY(8px); }
+      to { transform: translateY(0); }
+    }
+
+    .screen.active .card > *,
+    .screen.active > .camera-wrap,
+    .screen.active > .camera-actions {
+      animation: gentleRise .8s cubic-bezier(.22, 1, .36, 1) backwards;
+    }
+
+    .screen.active .card > :nth-child(2) { animation-delay: .1s; }
+    .screen.active .card > :nth-child(3) { animation-delay: .2s; }
+    .screen.active .card > :nth-child(4) { animation-delay: .3s; }
+    .screen.active .card > :nth-child(5) { animation-delay: .4s; }
+    .screen.active > .camera-actions { animation-delay: .18s; width: min(100%, 530px); }
+
+    .eyebrow {
+      color: #999995;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      margin-bottom: 28px;
+    }
+
+    h1, h2, h3, .reflection-text, .photo-caption, .final-text, .final-main, .camera-message {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 400;
+    }
+
+    h1 {
+      color: var(--text);
+      font-size: clamp(3.6rem, 11vw, 6.2rem);
+      line-height: .98;
+      letter-spacing: -.05em;
+      margin-bottom: 42px;
+    }
+
+    h2 {
+      color: var(--text);
+      font-size: clamp(2.1rem, 6vw, 3.2rem);
+      line-height: 1.18;
+      letter-spacing: -.025em;
+      margin-bottom: 34px;
+    }
+
+    p { color: var(--muted); font-size: clamp(1rem, 2.5vw, 1.125rem); line-height: 1.8; }
+    .lead { max-width: 560px; margin: 0 auto 42px; }
+    .highlight { color: var(--text); }
+    .accent { color: var(--accent); }
+
+    .btn {
+      display: block;
+      width: min(100%, 420px);
+      margin-left: auto;
+      margin-right: auto;
+      padding: 17px 24px;
+      border: 1px solid #292927;
+      border-radius: 999px;
+      background: #292927;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: .01em;
+      box-shadow: none;
+    }
+    .btn:hover, .btn:focus-visible { transform: translateY(-2px); background: #111; box-shadow: 0 10px 28px rgba(20,20,18,.12); }
+    .btn:active { transform: scale(.99); }
+    .btn:disabled { opacity: .55; cursor: default; transform: none; }
+    .btn.secondary { background: transparent; color: var(--text); border-color: var(--card-border); }
+
+    .small-note { margin-top: 24px; color: #999995; font-size: .8rem; line-height: 1.6; }
+    .answers { gap: 10px; margin-top: 38px; }
+    .answer {
+      padding: 18px 21px;
+      background: #fff;
+      color: #454542;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      font-size: 1rem;
+      box-shadow: none;
+    }
+    .answer:hover { background: #fdfdfc; border-color: #bcb9c5; transform: translateY(-1px); }
+    .answer { animation: gentleRise .55s cubic-bezier(.22, 1, .36, 1) backwards; }
+
+    #questionScreen { grid-template-columns: minmax(0, 1fr); }
+    .progress { width: min(100%, 560px); margin: 0 auto 48px; justify-self: center; }
+    .progress-top { width: 100%; color: #999995; font-size: .8rem; gap: 28px; }
+    .progress-top span:first-child { white-space: nowrap; }
+    .progress-top span:last-child { white-space: nowrap; margin-left: auto; }
+    .progress-track { height: 2px; background: #e4e4df; }
+    .progress-bar { background: #6b6873; }
+
+    .reflection { min-height: 70dvh; }
+    .reflection-type { color: #aaa; font-size: .75rem; letter-spacing: .17em; }
+    .reflection-text { color: #343432; font-size: clamp(1.7rem, 5vw, 2.65rem); line-height: 1.55; }
+
+    .privacy-icon {
+      width: 52px; height: 52px; margin-bottom: 30px;
+      border: 1px solid var(--card-border); border-radius: 50%;
+      background: transparent; font-size: 1.15rem;
+    }
+    .privacy-box { background: var(--bg-soft); border: 0; border-radius: 16px; box-shadow: none; }
+    .privacy-box p { color: #656561; font-size: .95rem; }
+
+    .camera-wrap {
+      width: min(100%, 530px);
+      aspect-ratio: 3 / 4;
+      border-radius: 20px;
+      background: #f5f5f2;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 0 0 6px #fff, 0 0 0 7px #e7e7e2;
+    }
+    .camera-overlay { background: linear-gradient(to bottom, rgba(0,0,0,.18), transparent 24%, transparent 70%, rgba(0,0,0,.28)); }
+    .not-saved { background: rgba(255,255,255,.9); color: #555; border: 0; font-size: .8rem; }
+    .camera-message { color: #fff; font-size: clamp(1.25rem, 4vw, 1.75rem); text-shadow: 0 2px 12px rgba(0,0,0,.3); }
+    .photo-caption { color: #31312f; font-size: clamp(1.65rem, 5vw, 2.45rem); }
+    #cameraScreen { grid-template-rows: minmax(0, 1fr) auto; gap: 18px; }
+    #cameraScreen .camera-wrap { max-height: min(68dvh, 680px); justify-self: center; }
+    #photoScreen { justify-items: center; }
+    #photoScreen .card {
+      width: min(100%, 610px);
+      max-width: 610px;
+      margin-inline: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    #photoScreen .eyebrow,
+    #photoScreen .camera-wrap,
+    #photoScreen .photo-caption,
+    #photoScreen .btn {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #photoScreen .camera-wrap { width: min(100%, 460px); height: min(56dvh, 590px); aspect-ratio: auto; flex: 0 0 auto; }
+    #photoScreen .photo-caption { width: min(100%, 540px); margin-top: 26px; margin-bottom: 22px; max-width: 540px; }
+    #photoScreen .btn { width: min(100%, 420px); }
+    .final-text { max-width: 570px; margin: 0 auto; color: #5c5c57; font-size: clamp(1.08rem, 2.6vw, 1.35rem); line-height: 1.75; }
+    .final-main { max-width: 610px; margin: 44px auto 0; color: #292927; font-size: clamp(2rem, 5.5vw, 3.15rem); line-height: 1.12; }
+    #finalScreen .card { max-width: 680px; }
+    #finalScreen .lead { margin-bottom: 34px; }
+    .goodbye-icon { color: #777772; }
+    .error { border: 1px solid #e8caca; background: #fff6f6; color: #945b5b; }
+    .participant-count { margin-top: 22px; text-align: center; color: #999995; font-size: .82rem; letter-spacing: .03em; }
+
+    /* Elementos gráficos: uma presença discreta, nunca um fundo decorado. */
+    .signature-art {
+      width: 158px;
+      height: 54px;
+      margin: 0 auto 30px;
+      color: #6f6f69;
+      opacity: .55;
+    }
+
+    .transition-art {
+      width: 146px;
+      height: 64px;
+      margin: 0 auto 28px;
+      color: #777771;
+      opacity: .42;
+    }
+
+    .screen-art {
+      position: relative;
+      z-index: 0;
+      width: 82px;
+      height: 56px;
+      margin: 0 auto 22px;
+      place-self: center;
+      color: #777771;
+      opacity: .34;
+      pointer-events: none;
+    }
+
+    #questionScreen .screen-art { width: 72px; height: 48px; margin-bottom: 18px; opacity: .28; }
+    #reflectionScreen .screen-art { width: 88px; height: 58px; margin-bottom: 14px; opacity: .3; }
+    #finalScreen .screen-art, #goodbyeScreen .screen-art { width: 86px; height: 58px; margin-bottom: 20px; opacity: .24; }
+    .screen .card, .reflection, .progress { position: relative; z-index: 1; }
+
+    .line-art { width: 100%; height: 100%; overflow: visible; }
+    .line-art * {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .line-art .soft-fill { fill: currentColor; stroke: none; }
+
+    @keyframes drawLine {
+      from { stroke-dashoffset: 240; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .line-art .draw {
+      stroke-dasharray: 240;
+      animation: drawLine 1.7s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    .reflection { position: relative; }
+    .reflection::after {
+      content: "";
+      width: 44px;
+      height: 1px;
+      margin: 30px auto 0;
+      background: #aaa9a3;
+      opacity: .7;
+    }
+
+    .reflection.is-poem::before {
+      content: "“";
+      position: absolute;
+      left: 2%;
+      top: 42%;
+      transform: translateY(-50%);
+      color: #22221f;
+      opacity: .035;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(9rem, 26vw, 17rem);
+      line-height: .7;
+      pointer-events: none;
+    }
+
+    .mini-lock {
+      display: inline-block;
+      width: 15px;
+      height: 13px;
+      margin-right: 7px;
+      border: 1.2px solid currentColor;
+      border-radius: 3px;
+      position: relative;
+      vertical-align: -2px;
+    }
+
+    .mini-lock::before {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 7px;
+      left: 2.2px;
+      top: -7px;
+      border: 1.2px solid currentColor;
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .admin-hotspot {
+      position: fixed;
+      z-index: 50;
+      left: 0;
+      top: 0;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      opacity: 0;
+      background: transparent;
+      cursor: default;
+    }
+
+    .admin-panel[hidden] { display: none; }
+    .admin-panel {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(34,34,31,.22);
+      backdrop-filter: blur(8px);
+    }
+
+    .admin-dialog {
+      width: min(420px, 100%);
+      padding: 34px;
+      border: 1px solid #e3e3de;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(30,30,27,.14);
+      text-align: center;
+    }
+
+    .admin-dialog h2 { margin-bottom: 12px; font-size: 1.75rem; }
+    .admin-total { margin: 20px 0 4px; color: #242422; font-family: Georgia, serif; font-size: 4rem; line-height: 1; }
+    .admin-label { margin-bottom: 28px; font-size: .9rem; }
+    .admin-actions { display: grid; gap: 10px; }
+    .admin-actions .btn { width: 100%; }
+
+    @media (max-width: 600px) {
+      .app { align-items: stretch; padding: 24px 22px; }
+      .screen.active { min-height: calc(100dvh - 48px); }
+      .card { padding: 10px 0; }
+      .answers { margin-top: 30px; }
+      #photoScreen .camera-wrap { height: min(52dvh, 500px); }
+      #photoScreen .photo-caption { font-size: clamp(1.65rem, 8vw, 2.25rem); }
+      #finalScreen .final-main { font-size: clamp(2rem, 9vw, 2.8rem); }
+    }
+
+    @media (max-height: 760px) {
+      .screen.active { align-content: start; }
+      #homeScreen.screen.active, #reflectionScreen.screen.active { align-content: center; }
+      .eyebrow { margin-bottom: 18px; }
+      h1 { margin-bottom: 28px; }
+      h2 { margin-bottom: 24px; }
+      .lead { margin-bottom: 28px; }
+      #photoScreen .camera-wrap { height: 46dvh; }
+      #photoScreen .photo-caption { margin: 18px auto; }
+      .final-main { margin-top: 30px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+
+    [hidden] { display: none !important; }
+
+    /* Entrada em três tempos, sem deslocar o título central. */
+    #homeScreen .card {
+      min-height: calc(100dvh - 64px);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    #homeScreen h1 { margin: 0; }
+
+    #homeScreen .signature-art {
+      position: absolute;
+      left: 50%;
+      top: calc(50% - 118px);
+      margin: 0;
+      transform: translateX(-50%);
+    }
+
+    .home-intro-details {
+      position: absolute;
+      left: 50%;
+      top: calc(50% + 92px);
+      width: min(100%, 440px);
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .home-intro-details .lead { margin-bottom: 24px; }
+
+    .intro-reveal {
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(7px);
+      transition: opacity 1.35s ease, transform 1.35s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .intro-reveal.is-visible {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sound-toggle {
+      position: fixed;
+      z-index: 40;
+      right: max(20px, env(safe-area-inset-right));
+      bottom: max(18px, env(safe-area-inset-bottom));
+      padding: 9px 13px;
+      border: 1px solid #e4e4df;
+      border-radius: 999px;
+      background: rgba(250,250,248,.92);
+      color: #777772;
+      font-size: .78rem;
+      cursor: pointer;
+      transition: color .25s ease, border-color .25s ease;
+    }
+
+    .sound-toggle:hover, .sound-toggle:focus-visible { color: #292927; border-color: #bcbcb6; }
+
+    /* Perguntas entram com ritmos variados, sempre uma única vez. */
+    @keyframes questionFadeOnce {
+      from { opacity: .82; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes wordRevealOnce {
+      from { opacity: .48; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #questionText.question-fade { animation: questionFadeOnce .82s ease-out both; }
+    #questionText .question-word {
+      display: inline-block;
+      margin-right: .22em;
+      animation: wordRevealOnce .95s ease both;
+    }
+
+    /* Pausa respiratória: um único ciclo de oito segundos. */
+    .breathing-stage, .art-pause-stage, .camera-prelude-stage {
+      min-height: 68dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .breathing-stage { gap: 26px; }
+
+    .breathing-circle {
+      position: relative;
+      width: clamp(104px, 22vw, 146px);
+      aspect-ratio: 1;
+      margin-bottom: 0;
+      border: 1px solid #b7b7b1;
+      border-radius: 50%;
+      box-shadow: 0 0 0 12px rgba(120,114,141,.025);
+      animation: breatheOnce 10.5s ease-in-out both;
+    }
+
+    .breathing-circle::before,
+    .breathing-circle::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(120,114,141,.16);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .breathing-circle::before { inset: 12px; animation: breatheInner 10.5s ease-in-out both; }
+    .breathing-circle::after { inset: -13px; animation: breatheHalo 10.5s ease-in-out both; }
+
+    @keyframes breatheOnce {
+      0% { transform: scale(.78); }
+      48% { transform: scale(1); }
+      100% { transform: scale(.78); }
+    }
+
+    @keyframes breatheInner {
+      0%, 100% { transform: scale(.72); }
+      48% { transform: scale(1); }
+    }
+
+    @keyframes breatheHalo {
+      0%, 100% { transform: scale(.92); }
+      48% { transform: scale(1.12); }
+    }
+
+    .stage-text-enter { animation: stageTextEnter .72s ease-out both; }
+    @keyframes stageTextEnter {
+      from { opacity: .7; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .breathing-message, .camera-prelude-message {
+      min-height: 1.5em;
+      color: #333330;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.2;
+    }
+
+    .art-pause-stage .transition-art { width: 170px; height: 90px; margin-bottom: 28px; opacity: .48; }
+    .art-pause-message { color: #777772; font-size: .9rem; letter-spacing: .16em; text-transform: uppercase; }
+
+    /* A câmera só aparece depois do convite silencioso. */
+    .camera-prelude-message { max-width: 560px; }
+    #captureButton { transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.22, 1, .36, 1); }
+    #captureButton.just-revealed { animation: questionFadeOnce 1.1s ease both; }
+
+    /* O retrato é o único elemento visual da tela de fotografia. */
+    #photoScreen .eyebrow, #photoScreen .camera-overlay { display: none; }
+    #photoScreen .camera-wrap { height: min(68dvh, 680px); width: min(100%, 510px); }
+    #photoScreen .photo-caption {
+      min-height: 2.8em;
+      margin-top: 28px;
+      font-size: clamp(1.2rem, 3vw, 1.65rem);
+      line-height: 1.45;
+    }
+
+    #photoScreen.photo-erasing #finalPhotoCanvas {
+      animation: erasePhotograph 4.8s cubic-bezier(.4, 0, .2, 1) both;
+    }
+
+    @keyframes erasePhotograph {
+      0% { opacity: 1; filter: brightness(1) saturate(1); }
+      100% { opacity: 0; filter: brightness(2.2) saturate(0); }
+    }
+
+    .final-word {
+      margin: 0 auto 24px;
+      color: #292927;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3.6rem, 12vw, 7rem);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -.04em;
+      text-align: center;
+    }
+
+    #finalScreen .eyebrow { margin-bottom: 34px; }
+    #goodbyeScreen .transition-art { width: 84px; height: 54px; }
+    #goodbyeScreen .lead { margin-bottom: 0; }
+
+    @media (max-width: 600px) {
+      #homeScreen .card { min-height: calc(100dvh - 48px); }
+      #homeScreen .signature-art { top: calc(50% - 100px); }
+      .home-intro-details { top: calc(50% + 72px); }
+      .sound-toggle { right: 14px; bottom: 12px; }
+      #photoScreen .camera-wrap { height: min(64dvh, 590px); }
+    }
+
+    /* Surpresas efêmeras e mural: sempre atrás do conteúdo principal. */
+    .app { position: relative; z-index: 2; }
+    .collective-mural {
+      position: fixed;
+      z-index: 0;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .mural-word {
+      position: absolute;
+      color: #6e6e68;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(.72rem, 1.4vw, .95rem);
+      letter-spacing: .08em;
+      opacity: .085;
+      white-space: nowrap;
+      animation: muralDrift 28s ease-in-out infinite alternate;
+    }
+    @keyframes muralDrift {
+      from { transform: translate3d(-4px, 2px, 0); }
+      to { transform: translate3d(7px, -5px, 0); }
+    }
+    .previous-wish {
+      position: fixed;
+      z-index: 3;
+      left: 50%;
+      bottom: max(76px, calc(env(safe-area-inset-bottom) + 66px));
+      width: min(86vw, 520px);
+      transform: translateX(-50%);
+      color: #777772;
+      font-size: .82rem;
+      line-height: 1.55;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .quiet-stage, .touch-stage, .signature-stage, .word-leave-stage,
+    .secret-stage, .last-look-stage {
+      width: 100%;
+      min-height: 68dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .quiet-stage h2 { max-width: 620px; }
+    .quiet-stage p, .touch-stage > p { color: #777772; }
+    .imperfect-pause {
+      width: 148px;
+      height: 148px;
+      margin-bottom: 38px;
+      border: 1px solid #aaa9a3;
+      border-right-color: transparent;
+      border-radius: 48% 52% 49% 51%;
+      transform: rotate(-9deg);
+    }
+
+    .hold-circle {
+      position: relative;
+      width: clamp(130px, 30vw, 190px);
+      aspect-ratio: 1;
+      margin: 36px auto;
+      border: 1px solid #8f8f89;
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      touch-action: none;
+      transition: transform .8s ease, background 1.1s ease;
+      animation: holdIdle 4s ease-in-out infinite;
+    }
+    .hold-circle::before {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 1px solid rgba(120,114,141,.2);
+      border-radius: 50%;
+      transform: scale(.72);
+      transition: transform 3.2s cubic-bezier(.2,.8,.25,1), border-color .8s ease;
+    }
+    .hold-circle.is-held {
+      transform: scale(1.3);
+      background: rgba(120,114,141,.05);
+      transition-duration: 3.2s;
+      animation: none;
+    }
+    .hold-circle.is-held::before { transform: scale(1.08); border-color: rgba(120,114,141,.42); }
+    .hold-circle.is-complete { animation: holdComplete 1.5s ease-out both; }
+    @keyframes holdIdle { 0%, 100% { transform: scale(.97); } 50% { transform: scale(1.03); } }
+    @keyframes holdComplete { 0% { box-shadow: 0 0 0 0 rgba(120,114,141,.2); } 100% { box-shadow: 0 0 0 46px rgba(120,114,141,0); } }
+    .touch-stage h2 { min-height: 2.6em; max-width: 600px; font-size: clamp(1.65rem, 5vw, 2.4rem); }
+
+    .signature-stage h2 { max-width: 650px; font-size: clamp(1.75rem, 5vw, 2.55rem); }
+    .signature-canvas {
+      position: relative !important;
+      inset: auto !important;
+      display: block !important;
+      width: min(100%, 600px) !important;
+      height: min(34dvh, 270px) !important;
+      margin: 10px auto 18px;
+      object-fit: initial;
+      border: 1px solid #e4e4df;
+      border-radius: 18px;
+      background: rgba(255,255,255,.64);
+      touch-action: none;
+      transition: opacity 3.2s ease, filter 3.2s ease;
+    }
+    .signature-canvas.is-vanishing { opacity: 0; filter: blur(5px); }
+    #signatureHint { margin-bottom: 18px; font-size: .86rem; }
+
+    /* A imagem retorna do preto e branco para a cor sem pulsar. */
+    #cameraVideo, .delayed-mirror { filter: grayscale(1); transition: filter 8s linear; }
+    #cameraScreen.camera-color-return #cameraVideo,
+    #cameraScreen.camera-color-return .delayed-mirror { filter: grayscale(0); }
+    .delayed-mirror { display: none; z-index: 2; background: #eee; }
+    .delayed-mirror.is-active { display: block; }
+    #cameraScreen .camera-overlay { z-index: 3; }
+    #photoScreen.photo-erasing #finalPhotoCanvas { animation: erasePhotograph 4.8s cubic-bezier(.4, 0, .2, 1) both; }
+    #photoScreen .camera-wrap { background: #fff; }
+
+    .word-leave-stage h2 { max-width: 620px; }
+    .word-options { width: min(100%, 610px); display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .word-option {
+      padding: 12px 18px;
+      border: 1px solid #dfdfda;
+      border-radius: 999px;
+      background: #fff;
+      color: #4b4b47;
+      cursor: pointer;
+    }
+    .word-option:hover, .word-option:focus-visible { border-color: #8d8b95; background: #fbfbf9; }
+    .word-form { width: min(100%, 470px); margin-top: 30px; }
+    .word-form label { display: block; margin-bottom: 10px; color: #858580; font-size: .82rem; }
+    .word-input-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .word-input-row input, .word-input-row button {
+      min-height: 48px;
+      border: 1px solid #dfdfda;
+      border-radius: 999px;
+      background: #fff;
+      color: #353532;
+    }
+    .word-input-row input { min-width: 0; padding: 0 18px; text-align: center; }
+    .word-input-row button { padding: 0 20px; background: #292927; color: #fff; cursor: pointer; }
+
+    .secret-circle {
+      position: relative;
+      width: 86px;
+      aspect-ratio: 1;
+      border: 1px solid #9d9d97;
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      transition: transform .8s cubic-bezier(.22,1,.36,1), opacity .8s ease;
+    }
+    .secret-title { max-width: 520px; margin-bottom: 14px; font-size: clamp(1.8rem, 5vw, 2.55rem); }
+    .secret-instruction { margin-bottom: 28px; color: #7c7c77; font-size: .92rem; }
+    .secret-envelope {
+      width: 48px;
+      height: 42px;
+      overflow: visible;
+      fill: none;
+      stroke: #656560;
+      stroke-width: 1.25;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .secret-envelope .envelope-flap {
+      transform-origin: 28px 15px;
+      transition: transform .65s cubic-bezier(.22,1,.36,1);
+    }
+    .secret-circle:hover .envelope-flap,
+    .secret-circle:focus-visible .envelope-flap {
+      transform: translateY(-3px);
+    }
+    .secret-circle.is-open { transform: scale(.72); opacity: 0; pointer-events: none; }
+    .secret-content { max-width: 560px; text-align: center; }
+    .secret-content p { color: #2d2d2a; font-family: Georgia, serif; font-size: clamp(1.45rem, 4vw, 2rem); }
+    #qrCanvas { position: relative; inset: auto; display: block; width: min(72vw, 320px); height: auto; aspect-ratio: 1; margin: 28px auto 16px; image-rendering: pixelated; }
+    .secret-content small { display: block; margin-bottom: 24px; color: #8b8b86; }
+    .last-look-stage .camera-wrap { height: min(70dvh, 680px); }
+
+    .touch-ripple {
+      position: fixed;
+      z-index: 20;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 1px solid rgba(86,86,80,.18);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: waterRipple 1.25s ease-out both;
+    }
+    @keyframes waterRipple { to { transform: scale(16); opacity: 0; } }
+
+    .mural-mode[hidden] { display: none; }
+    .mural-mode {
+      position: fixed;
+      z-index: 120;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fafaf8;
+    }
+    .mural-close { position: absolute; top: 22px; right: 24px; padding: 9px 14px; border: 1px solid #deded9; border-radius: 999px; background: transparent; color: #777; cursor: pointer; }
+    .mural-mode-words { position: relative; width: min(88vw, 1000px); height: min(74vh, 700px); }
+    .mural-mode-words span { position: absolute; color: #4e4e49; font-family: Georgia, serif; font-size: clamp(1.05rem, 2.6vw, 2rem); opacity: .72; }
+
+    .line-art .draw { animation-duration: 2.8s; }
+
+    /* Moldura inspirada em uma polaroid, sem recortar a imagem. */
+    .camera-wrap {
+      --polaroid-edge: 10px;
+      --polaroid-footer: 88px;
+      padding: 0;
+      border: 1px solid #dfdfda;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow:
+        0 14px 34px rgba(36,36,32,.075),
+        0 2px 6px rgba(36,36,32,.045);
+    }
+
+    .camera-wrap > video,
+    .camera-wrap > canvas {
+      top: var(--polaroid-edge);
+      right: var(--polaroid-edge);
+      bottom: var(--polaroid-footer);
+      left: var(--polaroid-edge);
+      width: calc(100% - (var(--polaroid-edge) * 2));
+      height: calc(100% - var(--polaroid-edge) - var(--polaroid-footer));
+      border-radius: 3px;
+    }
+
+    .camera-wrap > .camera-overlay {
+      top: var(--polaroid-edge);
+      right: var(--polaroid-edge);
+      bottom: var(--polaroid-footer);
+      left: var(--polaroid-edge);
+      overflow: visible;
+      border-radius: 3px;
+    }
+
+    #cameraScreen .camera-message,
+    #lastLookScreen .camera-message {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      height: calc(var(--polaroid-footer) - 8px);
+      min-height: 0;
+      padding: 0 14px;
+      color: #383835;
+      font-size: clamp(1rem, 2.7vw, 1.3rem);
+      text-shadow: none;
+    }
+
+    #photoScreen .photo-caption {
+      position: absolute;
+      z-index: 4;
+      right: var(--polaroid-edge);
+      bottom: 0;
+      left: var(--polaroid-edge);
+      width: auto;
+      max-width: none;
+      height: var(--polaroid-footer);
+      min-height: 0;
+      margin: 0 !important;
+      padding: 10px 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #363633;
+      font-size: clamp(.98rem, 2.6vw, 1.25rem);
+      line-height: 1.35;
+    }
+
+    #photoScreen .camera-wrap,
+    #cameraScreen .camera-wrap,
+    #lastLookScreen .camera-wrap {
+      border-radius: 8px;
+      box-shadow:
+        0 14px 34px rgba(36,36,32,.075),
+        0 2px 6px rgba(36,36,32,.045);
+    }
+
+    @media (max-width: 600px) {
+      .previous-wish { bottom: 58px; font-size: .74rem; }
+      .word-input-row { grid-template-columns: 1fr; }
+      .word-input-row button { width: 100%; }
+      .quiet-stage, .touch-stage, .signature-stage, .word-leave-stage, .secret-stage { min-height: 76dvh; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- TELA INICIAL -->
+  <section class="screen active" id="homeScreen">
+    <div class="card">
+
+      <div class="signature-art intro-reveal" id="homeSignature" aria-hidden="true"></div>
+
+      <h1>
+        Você se vê?
+      </h1>
+
+      <div class="home-intro-details">
+        <p class="lead intro-reveal" id="homeInvitation">
+          Fique por alguns minutos.
+        </p>
+
+        <button class="btn intro-reveal" id="startButton">
+          Começar
+        </button>
+
+        <p class="small-note intro-reveal" id="homePrivacyNote">
+          Para uma experiência mais imersiva, use fones de ouvido.<br>
+          Nenhuma resposta ou fotografia será armazenada.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- PERGUNTAS -->
+  <section class="screen" id="questionScreen">
+
+    <div class="progress">
+
+      <div class="progress-top">
+        <span>Um momento para você</span>
+        <span id="progressLabel">1 de 5</span>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <h2 id="questionText">
+        Pergunta
+      </h2>
+
+      <div class="answers" id="answersContainer"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- FRASES / POEMAS -->
+  <section class="screen" id="reflectionScreen">
+
+    <div class="reflection">
+
+      <div class="reflection-type" id="reflectionType">
+        Um instante
+      </div>
+
+      <div class="reflection-text" id="reflectionText"></div>
+
+    </div>
+
+  </section>
+
+  <!-- INTERLÚDIOS SORTEADOS -->
+  <section class="screen" id="breathingScreen">
+    <div class="breathing-stage">
+      <div class="breathing-circle" id="breathingCircle" aria-hidden="true"></div>
+      <div class="breathing-message" id="breathingMessage">Inspire.</div>
+    </div>
+  </section>
+
+  <section class="screen" id="artPauseScreen">
+    <div class="art-pause-stage">
+      <div class="transition-art" id="animatedInterludeArt" aria-hidden="true"></div>
+      <div class="art-pause-message">Continue no seu tempo</div>
+    </div>
+  </section>
+
+  <section class="screen" id="silentPauseScreen">
+    <div class="quiet-stage">
+      <div class="imperfect-pause" aria-hidden="true"></div>
+      <h2>Por dez segundos,<br>você não precisa responder nada.</h2>
+      <p id="silentPauseMessage">Apenas fique.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="noAnswerScreen">
+    <div class="quiet-stage">
+      <h2 id="noAnswerQuestion"></h2>
+      <p id="noAnswerReply"></p>
+    </div>
+  </section>
+
+  <section class="screen" id="poeticErrorScreen">
+    <div class="quiet-stage">
+      <div class="eyebrow">Uma pausa</div>
+      <h2>Você não precisa responder tudo.</h2>
+      <p>Pode continuar.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="touchHoldScreen">
+    <div class="touch-stage">
+      <p>Coloque o dedo aqui e fique por alguns segundos.</p>
+      <button class="hold-circle" id="holdCircle" type="button" aria-label="Mantenha o dedo pressionado"></button>
+      <h2 id="holdMessage"></h2>
+    </div>
+  </section>
+
+  <section class="screen" id="signatureScreen">
+    <div class="signature-stage">
+      <div class="eyebrow">Uma marca efêmera</div>
+      <h2>Deixe uma marca que só existirá por alguns segundos.</h2>
+      <canvas class="signature-canvas" id="signatureCanvas"></canvas>
+      <p id="signatureHint">Desenhe com o dedo.</p>
+      <button class="btn" id="finishSignatureButton" type="button" hidden>Deixar desaparecer</button>
+    </div>
+  </section>
+
+
+  <!-- TRANSIÇÃO PARA A CÂMERA -->
+  <section class="screen" id="beforeCameraScreen">
+
+    <div class="card">
+
+      <div class="transition-art" id="beforeCameraArt" aria-hidden="true"></div>
+
+      <div class="eyebrow">
+        Depois das perguntas
+      </div>
+
+      <h2>
+        Ainda falta olhar para uma pessoa.
+      </h2>
+
+      <p class="lead">
+        Algumas respostas você já conhecia.<br>
+        Outras talvez tenham surgido agora.
+      </p>
+
+      <h2 class="accent">
+        Agora, olhe para quem esteve em todas elas.
+      </h2>
+
+      <button class="btn" id="continueToPrivacy">
+        Continuar
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- AVISO DE PRIVACIDADE -->
+  <section class="screen" id="privacyScreen">
+
+    <div class="card camera-warning">
+
+      <div class="privacy-icon">
+        <span class="mini-lock" aria-hidden="true"></span>
+      </div>
+
+      <h2>
+        Sobre sua fotografia
+      </h2>
+
+      <div class="privacy-box">
+
+        <p>
+          A câmera será usada somente durante esta experiência.
+        </p>
+
+        <p>
+          <strong>
+            Nada será salvo, enviado ou armazenado.
+          </strong>
+        </p>
+
+        <p>
+          A imagem existirá apenas nesta tela e será apagada ao continuar.
+        </p>
+
+      </div>
+
+      <button class="btn" id="openCameraButton">
+        Entendi, abrir câmera
+      </button>
+
+      <div class="error" id="cameraError"></div>
+
+    </div>
+
+  </section>
+
+  <section class="screen" id="cameraPreludeScreen">
+    <div class="camera-prelude-stage">
+      <div class="camera-prelude-message" id="cameraPreludeMessage"></div>
+    </div>
+  </section>
+
+
+  <!-- CÂMERA -->
+  <section class="screen" id="cameraScreen">
+
+    <div class="camera-wrap">
+
+      <video
+        id="cameraVideo"
+        autoplay
+        muted
+        playsinline>
+      </video>
+
+      <canvas id="delayedMirrorCanvas" class="delayed-mirror"></canvas>
+
+      <canvas id="photoCanvas"></canvas>
+
+      <div class="camera-overlay">
+
+        <div class="not-saved">
+          <span class="mini-lock" aria-hidden="true"></span>Sua fotografia não será salva
+        </div>
+
+        <div class="camera-message" id="cameraMessage">
+          Olhe para você.
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="camera-actions">
+
+      <button class="btn" id="captureButton" hidden>
+        Guardar este instante por alguns segundos
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- FOTO CONGELADA -->
+  <section class="screen" id="photoScreen">
+
+    <div class="card">
+
+      <div class="eyebrow">
+        Apenas se veja
+      </div>
+
+      <div class="camera-wrap">
+
+        <canvas id="finalPhotoCanvas"></canvas>
+
+        <div class="camera-overlay">
+
+          <div class="not-saved">
+            Esta fotografia não será salva
+          </div>
+
+        </div>
+
+        <div class="photo-caption" id="photoCaption" aria-live="polite"></div>
+
+      </div>
+
+      <button class="btn" id="seeFinalMessageButton" hidden>
+        Continuar
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- MENSAGEM FINAL -->
+  <section class="screen" id="finalScreen">
+
+    <div class="card">
+      <div class="eyebrow">Uma palavra para levar</div>
+      <div class="final-text" id="finalText" hidden></div>
+      <div class="final-word" id="finalWord">PRESENÇA.</div>
+      <p class="lead">Leve isso com você hoje.</p>
+      <button class="btn" id="finishButton" hidden>
+        Finalizar
+      </button>
+    </div>
+  </section>
+
+  <!-- VESTÍGIO COLETIVO -->
+  <section class="screen" id="wordLeaveScreen">
+    <div class="word-leave-stage">
+      <div class="eyebrow">Um vestígio para quem vier depois</div>
+      <h2>O que você gostaria de desejar para a próxima pessoa?</h2>
+      <div class="word-options" id="wordOptions"></div>
+      <form class="word-form" id="wordForm">
+        <label for="customWord">Ou deixe uma única palavra</label>
+        <div class="word-input-row">
+          <input id="customWord" maxlength="22" autocomplete="off" placeholder="uma palavra" />
+          <button type="submit">Deixar</button>
+        </div>
+      </form>
+      <p class="small-note">Sem nome, foto ou resposta. Ela existirá somente enquanto esta página estiver aberta.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="secretScreen">
+    <div class="secret-stage">
+      <div class="eyebrow">Uma última mensagem</div>
+      <h2 class="secret-title" id="secretTitle">Há algo esperando por você.</h2>
+      <p class="secret-instruction" id="secretInstruction">Toque no envelope para abrir.</p>
+      <button class="secret-circle" id="secretCircle" type="button" aria-label="Abrir mensagem secreta">
+        <svg class="secret-envelope" viewBox="0 0 56 48" aria-hidden="true">
+          <rect x="7" y="15" width="42" height="28" rx="2.5"></rect>
+          <path d="M8 18 L28 32 L48 18"></path>
+          <path d="M8 41 L21 29 M48 41 L35 29" opacity=".62"></path>
+          <path class="envelope-flap" d="M9 15 L28 5 L47 15"></path>
+        </svg>
+      </button>
+      <div class="secret-content" id="secretContent" hidden>
+        <p id="secretPhrase"></p>
+        <canvas id="qrCanvas" width="232" height="232" aria-label="QR Code da mensagem para levar"></canvas>
+        <small>Aponte a câmera do celular para levar esta mensagem com você.</small>
+        <button class="btn" id="continueAfterSecret" type="button">Continuar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="lastLookScreen">
+    <div class="last-look-stage">
+      <div class="camera-wrap">
+        <video id="lastLookVideo" autoplay muted playsinline></video>
+        <div class="camera-overlay">
+          <div class="camera-message" id="lastLookMessage"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="timeMessageScreen">
+    <div class="quiet-stage">
+      <div class="eyebrow">Agora pode continuar</div>
+      <h2>Por alguns minutos,<br>o mundo continuou sem você.</h2>
+      <p>E ficou tudo bem.<br>Você pôde parar.</p>
+    </div>
+  </section>
+
+
+  <!-- ENCERRAMENTO -->
+  <section class="screen" id="goodbyeScreen">
+
+    <div class="card">
+      <div class="transition-art" id="goodbyeArt" aria-hidden="true"></div>
+      <h2>Obrigado por se ver.</h2>
+      <p class="lead">VOCÊ SE VÊ?</p>
+      <button class="btn" id="restartButton" hidden>
+        Próxima pessoa
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<div class="collective-mural" id="collectiveMural" aria-hidden="true"></div>
+<div class="previous-wish" id="previousWish" hidden></div>
+<button class="sound-toggle intro-reveal" id="soundToggle" type="button" aria-pressed="true">Som: ligado</button>
+
+<div class="admin-hotspot" id="adminHotspot" aria-hidden="true"></div>
+
+<div class="admin-panel" id="adminPanel" hidden>
+  <section class="admin-dialog" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+    <div class="eyebrow">Área reservada</div>
+    <h2 id="adminTitle">Painel da instalação</h2>
+    <div class="admin-total" id="adminParticipantCount">0</div>
+    <p class="admin-label">experiências concluídas neste dispositivo</p>
+    <div class="admin-actions">
+      <button class="btn" id="adminCloseButton" type="button">Fechar</button>
+      <button class="btn secondary" id="adminMuralButton" type="button">O que ficou</button>
+      <button class="btn secondary" id="adminResetButton" type="button">Zerar contador</button>
+    </div>
+  </section>
+</div>
+
+<div class="mural-mode" id="muralMode" hidden>
+  <button class="mural-close" id="muralCloseButton" type="button">Fechar</button>
+  <div class="eyebrow">O que ficou</div>
+  <div class="mural-mode-words" id="muralModeWords"></div>
+</div>
+
+
+  <script>
+/* =========================================================
+   BANCO DE PERGUNTAS — VOCÊ SE VÊ?
+   40 perguntas diferentes
+   Cada participante recebe apenas 5.
+========================================================= */
+
+const questions = [
+
+  // ============================
+  // OLHAR PARA SI
+  // ============================
+
+  {
+    question: "Quando você olha para si, o que gostaria de enxergar mais?",
+    answers: [
+      "Minha força.",
+      "Minha beleza além da aparência.",
+      "Tudo o que já vivi.",
+      "A pessoa que estou me tornando."
+    ]
+  },
+
+  {
+    question: "Qual parte de você merece ser reconhecida hoje?",
+    answers: [
+      "Minha coragem.",
+      "Minha sensibilidade.",
+      "Minha persistência.",
+      "Meu jeito único de ser."
+    ]
+  },
+
+  {
+    question: "O que você mais gosta na pessoa que você é?",
+    answers: [
+      "Meu coração.",
+      "Minha forma de pensar.",
+      "Meu jeito de cuidar.",
+      "Minha maneira de continuar."
+    ]
+  },
+
+  {
+    question: "Você consegue perceber o que torna sua existência singular?",
+    answers: [
+      "Sim, cada vez mais.",
+      "Estou começando a perceber.",
+      "Em alguns momentos.",
+      "Hoje quero olhar para isso."
+    ]
+  },
+
+  {
+    question: "Se você pudesse se enxergar pelos olhos de alguém que te ama, o que acha que veria?",
+    answers: [
+      "Uma pessoa especial.",
+      "Alguém muito forte.",
+      "Alguém que merece carinho.",
+      "Qualidades que às vezes eu esqueço."
+    ]
+  },
+
+
+  // ============================
+  // AMOR-PRÓPRIO
+  // ============================
+
+  {
+    question: "Como está a sua relação com você hoje?",
+    answers: [
+      "Cheia de carinho.",
+      "Em construção.",
+      "Mais leve do que antes.",
+      "Aprendendo todos os dias."
+    ]
+  },
+
+  {
+    question: "Você tem se permitido gostar de quem você é?",
+    answers: [
+      "Sim.",
+      "Cada vez mais.",
+      "Estou descobrindo como.",
+      "Quero me permitir mais."
+    ]
+  },
+
+  {
+    question: "Que tipo de carinho você gostaria de oferecer a si mesmo agora?",
+    answers: [
+      "Paciência.",
+      "Compreensão.",
+      "Descanso.",
+      "Um pouco mais de amor."
+    ]
+  },
+
+  {
+    question: "Você reconhece que merece ser tratado com carinho?",
+    answers: [
+      "Com certeza.",
+      "Estou aprendendo isso.",
+      "Quero lembrar disso mais vezes.",
+      "Hoje eu escolho acreditar."
+    ]
+  },
+
+  {
+    question: "Se pudesse se dar um abraço agora, por qual motivo seria?",
+    answers: [
+      "Por tudo o que já superei.",
+      "Por continuar tentando.",
+      "Porque eu mereço.",
+      "Sem motivo. Só porque sim."
+    ]
+  },
+
+
+  // ============================
+  // CONQUISTAS
+  // ============================
+
+  {
+    question: "Qual conquista sua merece mais reconhecimento?",
+    answers: [
+      "Algo que ninguém percebeu.",
+      "Algo que achei que não conseguiria.",
+      "Ter continuado.",
+      "A pessoa que me tornei."
+    ]
+  },
+
+  {
+    question: "Quando pensa no caminho que já percorreu, o que sente?",
+    answers: [
+      "Orgulho.",
+      "Gratidão.",
+      "Surpresa por ter chegado tão longe.",
+      "Vontade de continuar."
+    ]
+  },
+
+  {
+    question: "Você costuma comemorar suas pequenas vitórias?",
+    answers: [
+      "Sim, aprendi a valorizar.",
+      "Estou começando.",
+      "Quero fazer isso mais vezes.",
+      "Talvez hoje seja um bom começo."
+    ]
+  },
+
+  {
+    question: "O que mais ajudou você a chegar até aqui?",
+    answers: [
+      "Minha persistência.",
+      "Minha coragem.",
+      "Minha esperança.",
+      "Minha capacidade de recomeçar."
+    ]
+  },
+
+  {
+    question: "Qual destas coisas você gostaria de reconhecer em si hoje?",
+    answers: [
+      "Eu não desisti.",
+      "Eu cresci.",
+      "Eu aprendi.",
+      "Eu ainda estou tentando."
+    ]
+  },
+
+
+  // ============================
+  // PRESENTE
+  // ============================
+
+  {
+    question: "Como você gostaria de se sentir neste exato momento?",
+    answers: [
+      "Em paz.",
+      "Leve.",
+      "Presente.",
+      "Em acolhimento."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de deixar de lado por alguns minutos?",
+    answers: [
+      "A pressa.",
+      "As cobranças.",
+      "As comparações.",
+      "Tudo o que pode esperar."
+    ]
+  },
+
+  {
+    question: "O que faria este momento ser realmente seu?",
+    answers: [
+      "Respirar com calma.",
+      "Parar de pensar no depois.",
+      "Me ouvir.",
+      "Simplesmente estar aqui."
+    ]
+  },
+
+  {
+    question: "Quando foi a última vez que você parou sem precisar fazer nada?",
+    answers: [
+      "Hoje.",
+      "Recentemente.",
+      "Faz algum tempo.",
+      "Talvez este seja esse momento."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de perceber ao seu redor agora?",
+    answers: [
+      "O silêncio.",
+      "Minha respiração.",
+      "Como estou me sentindo.",
+      "Que eu estou aqui."
+    ]
+  },
+
+
+  // ============================
+  // GENTILEZA
+  // ============================
+
+  {
+    question: "Como você gostaria de falar consigo nos dias difíceis?",
+    answers: [
+      "Com mais paciência.",
+      "Com mais carinho.",
+      "Com menos cobrança.",
+      "Como falaria com alguém que amo."
+    ]
+  },
+
+  {
+    question: "Quando algo não sai como esperado, o que você gostaria de lembrar?",
+    answers: [
+      "Eu posso tentar novamente.",
+      "Um erro não me define.",
+      "Eu fiz o que consegui.",
+      "Nem tudo precisa ser perfeito."
+    ]
+  },
+
+  {
+    question: "Que frase você gostaria de ouvir de si mesmo hoje?",
+    answers: [
+      "Eu tenho orgulho de você.",
+      "Você está fazendo o seu melhor.",
+      "Você merece descansar.",
+      "Continue no seu tempo."
+    ]
+  },
+
+  {
+    question: "O que significa tratar-se com gentileza?",
+    answers: [
+      "Respeitar meus limites.",
+      "Me permitir descansar.",
+      "Não me comparar.",
+      "Aceitar quem eu sou hoje."
+    ]
+  },
+
+  {
+    question: "Qual cobrança você gostaria de transformar em cuidado?",
+    answers: [
+      "A necessidade de acertar sempre.",
+      "A pressa para conseguir tudo.",
+      "A comparação com outras pessoas.",
+      "A ideia de que nunca faço o suficiente."
+    ]
+  },
+
+
+  // ============================
+  // IDENTIDADE
+  // ============================
+
+  {
+    question: "Qual palavra representa melhor quem você é hoje?",
+    answers: [
+      "Coragem.",
+      "Transformação.",
+      "Esperança.",
+      "Descoberta."
+    ]
+  },
+
+  {
+    question: "Qual qualidade sua talvez mereça mais espaço?",
+    answers: [
+      "Minha criatividade.",
+      "Minha sensibilidade.",
+      "Minha coragem.",
+      "Minha autenticidade."
+    ]
+  },
+
+  {
+    question: "O que faz você ser você?",
+    answers: [
+      "Minha história.",
+      "Minha maneira de sentir.",
+      "As escolhas que faço.",
+      "Tudo isso junto."
+    ]
+  },
+
+  {
+    question: "Que parte da sua personalidade você gostaria de celebrar?",
+    answers: [
+      "Meu jeito de amar.",
+      "Minha curiosidade.",
+      "Minha espontaneidade.",
+      "Minha determinação."
+    ]
+  },
+
+  {
+    question: "Se sua essência pudesse ser descrita por uma sensação, qual seria?",
+    answers: [
+      "Aconchego.",
+      "Liberdade.",
+      "Intensidade.",
+      "Calma."
+    ]
+  },
+
+
+  // ============================
+  // SONHOS E FUTURO
+  // ============================
+
+  {
+    question: "O que você gostaria que sua versão do futuro nunca esquecesse?",
+    answers: [
+      "De onde veio.",
+      "Das pessoas que ama.",
+      "De cuidar de si.",
+      "De continuar sonhando."
+    ]
+  },
+
+  {
+    question: "Qual sentimento você gostaria de levar para os próximos dias?",
+    answers: [
+      "Confiança.",
+      "Leveza.",
+      "Esperança.",
+      "Coragem."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de permitir a si mesmo daqui para frente?",
+    answers: [
+      "Tentar coisas novas.",
+      "Errar sem me destruir.",
+      "Descansar quando precisar.",
+      "Ser mais eu."
+    ]
+  },
+
+  {
+    question: "Quando pensa nos seus sonhos, qual pensamento gostaria de guardar?",
+    answers: [
+      "Ainda há tempo.",
+      "Eu posso começar pequeno.",
+      "Meu caminho não precisa ser igual ao de ninguém.",
+      "Vale a pena tentar."
+    ]
+  },
+
+  {
+    question: "Se amanhã pudesse começar com uma sensação, qual você escolheria?",
+    answers: [
+      "Paz.",
+      "Entusiasmo.",
+      "Confiança.",
+      "Gratidão."
+    ]
+  },
+
+
+  // ============================
+  // MEMÓRIAS E CAMINHO
+  // ============================
+
+  {
+    question: "Se pudesse encontrar uma versão mais jovem de você, o que faria?",
+    answers: [
+      "Daria um abraço.",
+      "Diria que vai ficar tudo bem.",
+      "Agradeceria por não ter desistido.",
+      "Contaria o quanto cresceu."
+    ]
+  },
+
+  {
+    question: "Qual parte da sua história você gostaria de olhar com mais carinho?",
+    answers: [
+      "Meus recomeços.",
+      "Minhas escolhas.",
+      "Os momentos difíceis.",
+      "Tudo o que me trouxe até aqui."
+    ]
+  },
+
+  {
+    question: "O que suas experiências ensinaram sobre você?",
+    answers: [
+      "Que sou mais forte do que imaginava.",
+      "Que consigo recomeçar.",
+      "Que ainda tenho muito para descobrir.",
+      "Que mudar também faz parte."
+    ]
+  },
+
+  {
+    question: "Que lembrança sobre você gostaria de guardar por mais tempo?",
+    answers: [
+      "Um momento em que fui corajoso.",
+      "Um momento em que fui feliz.",
+      "Uma conquista importante.",
+      "Uma vez em que escolhi continuar."
+    ]
+  },
+
+  {
+    question: "Depois de tudo o que viveu, o que você reconhece em si?",
+    answers: [
+      "Resistência.",
+      "Crescimento.",
+      "Capacidade de mudança.",
+      "Mais força do que eu percebia."
+    ]
+  }
+
+];
+  </script>
+
+  <script>
+const reflections = [
+
+  {
+    type: "frase",
+    text: "Você não precisa florescer todos os dias para continuar sendo jardim."
+  },
+
+  {
+    type: "frase",
+    text: "Talvez você esteja indo melhor do que imagina."
+  },
+
+  {
+    type: "frase",
+    text: "Nem toda conquista faz barulho."
+  },
+
+  {
+    type: "frase",
+    text: "Ir devagar também é seguir."
+  },
+
+  {
+    type: "frase",
+    text: "Há beleza também naquilo que ainda está em construção."
+  },
+
+  {
+    type: "frase",
+    text: "Você merece a mesma paciência que oferece às pessoas que ama."
+  },
+
+  {
+    type: "frase",
+    text: "Algumas das suas maiores vitórias aconteceram em silêncio."
+  },
+
+  {
+    type: "frase",
+    text: "Você não precisa ter todas as respostas para continuar."
+  },
+
+  {
+    type: "frase",
+    text: "Existe coragem até em simplesmente continuar."
+  },
+
+  {
+    type: "frase",
+    text: "Seu tempo não precisa ser igual ao tempo de ninguém."
+  },
+
+  {
+    type: "frase",
+    text: "Existem partes suas que cresceram justamente onde você achou que estava quebrando."
+  },
+
+  {
+    type: "frase",
+    text: "Você é mais do que os dias em que não conseguiu."
+  },
+
+  {
+    type: "frase",
+    text: "Às vezes, descansar também é uma forma de continuar."
+  },
+
+  {
+    type: "frase",
+    text: "Nem tudo em você precisa ser consertado."
+  },
+
+  {
+    type: "frase",
+    text: "Você não precisa se transformar para merecer carinho."
+  },
+
+  {
+    type: "frase",
+    text: "Existem qualidades suas que talvez tenham se tornado comuns demais para você perceber."
+  },
+
+  {
+    type: "frase",
+    text: "Olhar para si com carinho também exige coragem."
+  },
+
+  {
+    type: "frase",
+    text: "Você já atravessou dias que um dia pareceram impossíveis."
+  },
+
+  {
+    type: "frase",
+    text: "Nem sempre crescer significa ir mais rápido."
+  },
+
+  {
+    type: "frase",
+    text: "Você pode ser uma obra em construção e ainda assim merecer admiração."
+  },
+
+  {
+    type: "poema",
+    text:
+`Há dias em que você corre tanto
+que esquece quem está correndo.
+
+Hoje,
+por alguns segundos,
+apenas fique.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Entre tudo aquilo
+que você ainda deseja ser,
+
+não esqueça
+de reconhecer
+aquilo que já é.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você passou por lugares
+que achou que não atravessaria.
+
+Talvez seja hora
+de reconhecer
+quem atravessou.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Olhe devagar.
+
+Existe uma história inteira
+por trás dos olhos
+que você vê no espelho.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Nem sempre você precisa
+encontrar uma resposta.
+
+Algumas vezes,
+basta perceber
+que está aqui.`
+  },
+
+  {
+    type: "poema",
+    text:
+`O tempo passou por você.
+
+Mas você também
+passou pelo tempo.
+
+E chegou até aqui.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Há versões suas
+que ficaram pelo caminho.
+
+E há outras
+que ainda estão
+começando a nascer.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Talvez você conheça
+cada pequeno defeito seu.
+
+Hoje,
+experimente observar
+suas qualidades
+com a mesma atenção.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você não precisa correr.
+
+Algumas flores
+não chegam atrasadas.
+
+Elas simplesmente
+florescem no próprio tempo.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você olha para tantos rostos.
+
+Reconhece tantas pessoas.
+
+Talvez hoje
+seja apenas um convite
+para reconhecer o seu.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Há caminhos
+que ninguém viu você percorrer.
+
+Há batalhas
+que ninguém soube que existiram.
+
+Mas você sabe.
+
+E você continuou.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Não procure perfeição.
+
+Procure presença.
+
+Você não precisa
+ser outra pessoa
+para merecer
+estar aqui.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Entre aquilo
+que ficou para trás
+
+e tudo aquilo
+que ainda virá,
+
+existe você.
+
+Agora.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Respire.
+
+Por alguns segundos,
+não tente melhorar nada.
+
+Não tente corrigir nada.
+
+Apenas exista.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você talvez não perceba,
+
+mas há alguém
+que caminhou ao seu lado
+em absolutamente todos
+os seus dias.
+
+Você.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Existem dias
+em que sobreviver
+já foi suficiente.
+
+Não diminua
+a força que isso exigiu.`
+  },
+
+  {
+    type: "poema",
+    text:
+`O espelho mostra um rosto.
+
+Mas não mostra
+tudo aquilo
+que esse rosto
+precisou atravessar.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você mudou.
+
+E talvez isso
+não signifique
+que deixou de ser você.
+
+Talvez signifique
+que continuou vivendo.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Há uma delicadeza
+em aceitar:
+
+eu ainda não terminei
+de me descobrir.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Talvez você passe
+boa parte da vida
+tentando chegar.
+
+Hoje,
+por alguns instantes,
+perceba onde já chegou.`
+  }
+
+];
+  </script>
+
+  <script>
+const extraQuestions = [
+
+  {
+    question: "O que em você merece mais atenção hoje?",
+    answers: [
+      "Aquilo que estou sentindo.",
+      "Aquilo que estou conquistando.",
+      "Aquilo que tenho deixado de lado.",
+      "A pessoa que existe por trás da rotina."
+    ]
+  },
+
+  {
+    question: "Quando você pensa em si com carinho, o que aparece primeiro?",
+    answers: [
+      "Meu sorriso.",
+      "Minha história.",
+      "Minha forma de sentir.",
+      "Minha vontade de seguir."
+    ]
+  },
+
+  {
+    question: "Qual sensação você gostaria de guardar deste momento?",
+    answers: [
+      "Tranquilidade.",
+      "Acolhimento.",
+      "Pertencimento.",
+      "Confiança."
+    ]
+  },
+
+  {
+    question: "O que você acha que merece ouvir mais vezes?",
+    answers: [
+      "Você fez o suficiente.",
+      "Eu acredito em você.",
+      "Não tenha tanta pressa.",
+      "Você pode descansar."
+    ]
+  },
+
+  {
+    question: "Qual aspecto seu você descobriu recentemente?",
+    answers: [
+      "Uma força que eu não conhecia.",
+      "Uma nova forma de pensar.",
+      "Um limite importante.",
+      "Uma vontade que estava escondida."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de agradecer ao seu corpo hoje?",
+    answers: [
+      "Por me carregar até aqui.",
+      "Por resistir comigo.",
+      "Por me permitir sentir o mundo.",
+      "Por estar presente todos os dias."
+    ]
+  },
+
+  {
+    question: "Qual dessas coisas você gostaria de fazer sem culpa?",
+    answers: [
+      "Descansar.",
+      "Dizer não.",
+      "Mudar de ideia.",
+      "Escolher a mim mesmo."
+    ]
+  },
+
+  {
+    question: "Quando você percebe que precisa desacelerar?",
+    answers: [
+      "Quando meu corpo pede.",
+      "Quando minha cabeça fica cheia.",
+      "Quando tudo começa a parecer urgente.",
+      "Ainda estou aprendendo a perceber."
+    ]
+  },
+
+  {
+    question: "O que costuma fazer você lembrar de quem é?",
+    answers: [
+      "As pessoas que amo.",
+      "As coisas que crio.",
+      "Momentos de silêncio.",
+      "As experiências que vivi."
+    ]
+  },
+
+  {
+    question: "Se pudesse retirar uma cobrança de cima de você hoje, qual seria?",
+    answers: [
+      "Ter que saber tudo.",
+      "Ter que agradar todo mundo.",
+      "Ter que ser produtivo o tempo inteiro.",
+      "Ter que estar sempre bem."
+    ]
+  },
+
+  {
+    question: "Que parte da sua rotina poderia ter mais leveza?",
+    answers: [
+      "Meu trabalho ou estudo.",
+      "Minha relação comigo.",
+      "Minha forma de descansar.",
+      "Minha maneira de lidar com expectativas."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de perceber mais em seus dias?",
+    answers: [
+      "Pequenos momentos felizes.",
+      "Meu próprio progresso.",
+      "As pessoas presentes.",
+      "As coisas simples."
+    ]
+  },
+
+  {
+    question: "Qual dessas atitudes seria um gesto de cuidado com você hoje?",
+    answers: [
+      "Diminuir o ritmo.",
+      "Fazer algo que gosto.",
+      "Conversar com alguém.",
+      "Me permitir não resolver tudo agora."
+    ]
+  },
+
+  {
+    question: "O que você aprendeu sobre si no último ano?",
+    answers: [
+      "Que consigo me adaptar.",
+      "Que tenho limites.",
+      "Que posso mudar.",
+      "Que sou mais capaz do que pensava."
+    ]
+  },
+
+  {
+    question: "Que versão sua merece um agradecimento?",
+    answers: [
+      "A que continuou quando estava difícil.",
+      "A que teve coragem de mudar.",
+      "A que pediu ajuda.",
+      "A que começou de novo."
+    ]
+  },
+
+  {
+    question: "O que faz você se sentir verdadeiramente presente?",
+    answers: [
+      "Uma boa conversa.",
+      "Criar alguma coisa.",
+      "Ficar em silêncio.",
+      "Estar perto de quem amo."
+    ]
+  },
+
+  {
+    question: "Qual sentimento você gostaria de acolher sem tentar esconder?",
+    answers: [
+      "Saudade.",
+      "Medo.",
+      "Cansaço.",
+      "Esperança."
+    ]
+  },
+
+  {
+    question: "Que parte da sua vida merece ser vivida com menos pressa?",
+    answers: [
+      "Meus sonhos.",
+      "Minhas relações.",
+      "Meu crescimento.",
+      "Tudo um pouco."
+    ]
+  },
+
+  {
+    question: "Quando você faz algo por você, como se sente?",
+    answers: [
+      "Mais leve.",
+      "Mais presente.",
+      "Mais conectado comigo.",
+      "Quero fazer isso mais vezes."
+    ]
+  },
+
+  {
+    question: "O que você considera uma força silenciosa sua?",
+    answers: [
+      "Minha paciência.",
+      "Minha capacidade de ouvir.",
+      "Minha resistência.",
+      "Minha capacidade de recomeçar."
+    ]
+  },
+
+  {
+    question: "Qual destas coisas você gostaria de aceitar com mais tranquilidade?",
+    answers: [
+      "Que nem tudo depende de mim.",
+      "Que posso mudar de opinião.",
+      "Que algumas coisas levam tempo.",
+      "Que não preciso agradar todos."
+    ]
+  },
+
+  {
+    question: "O que você gostaria que as pessoas percebessem em você além da aparência?",
+    answers: [
+      "Minha forma de amar.",
+      "Minha dedicação.",
+      "Minha criatividade.",
+      "Minha essência."
+    ]
+  },
+
+  {
+    question: "Qual atitude sua mostra que você cresceu?",
+    answers: [
+      "Aprendi a colocar limites.",
+      "Aprendi a pedir desculpas.",
+      "Aprendi a ir embora quando preciso.",
+      "Aprendi a escolher melhor minhas batalhas."
+    ]
+  },
+
+  {
+    question: "Quando você pensa em paz, o que imagina?",
+    answers: [
+      "Silêncio.",
+      "Estar em casa.",
+      "Estar perto de alguém especial.",
+      "Estar bem comigo."
+    ]
+  },
+
+  {
+    question: "Que pequena coisa pode tornar seu dia melhor?",
+    answers: [
+      "Uma pausa.",
+      "Uma conversa.",
+      "Uma música.",
+      "Alguns minutos só meus."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de parar de exigir de si?",
+    answers: [
+      "Perfeição.",
+      "Velocidade.",
+      "Certeza.",
+      "Aprovação."
+    ]
+  },
+
+  {
+    question: "Qual dessas palavras você gostaria de oferecer a si hoje?",
+    answers: [
+      "Calma.",
+      "Paciência.",
+      "Liberdade.",
+      "Confiança."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de enxergar ao lembrar de quem era anos atrás?",
+    answers: [
+      "Coragem.",
+      "Inocência.",
+      "Força.",
+      "Alguém que estava fazendo o possível."
+    ]
+  },
+
+  {
+    question: "Que escolha sua te aproximou mais de quem você é?",
+    answers: [
+      "Ter dito não.",
+      "Ter começado algo novo.",
+      "Ter encerrado um ciclo.",
+      "Ter escolhido meu próprio caminho."
+    ]
+  },
+
+  {
+    question: "O que você gostaria que nunca fosse definido por um erro seu?",
+    answers: [
+      "Meu valor.",
+      "Minha capacidade.",
+      "Minha história.",
+      "Meu futuro."
+    ]
+  },
+
+  {
+    question: "Que parte de você gostaria de conhecer melhor?",
+    answers: [
+      "Meus desejos.",
+      "Meus limites.",
+      "Minha criatividade.",
+      "Minha forma de amar."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de fazer mais sem pensar no que os outros vão achar?",
+    answers: [
+      "Ser mais espontâneo.",
+      "Criar.",
+      "Falar o que sinto.",
+      "Escolher o que realmente quero."
+    ]
+  },
+
+  {
+    question: "Qual dessas coisas faz você sentir que está presente?",
+    answers: [
+      "Rir de verdade.",
+      "Sentir algo intenso.",
+      "Descobrir algo novo.",
+      "Compartilhar momentos."
+    ]
+  },
+
+  {
+    question: "Quando foi a última vez que você percebeu que estava feliz?",
+    answers: [
+      "Hoje.",
+      "Nos últimos dias.",
+      "Faz um tempo.",
+      "Talvez eu precise prestar mais atenção."
+    ]
+  },
+
+  {
+    question: "Que sentimento você gostaria de deixar entrar com mais frequência?",
+    answers: [
+      "Alegria.",
+      "Serenidade.",
+      "Curiosidade.",
+      "Esperança."
+    ]
+  },
+
+  {
+    question: "O que significa se respeitar para você?",
+    answers: [
+      "Reconhecer meus limites.",
+      "Ouvir meus sentimentos.",
+      "Não aceitar qualquer coisa.",
+      "Escolher o que me faz bem."
+    ]
+  },
+
+  {
+    question: "Qual dessas coisas você considera uma vitória pessoal?",
+    answers: [
+      "Ter aprendido a me posicionar.",
+      "Ter sobrevivido a uma fase difícil.",
+      "Ter começado novamente.",
+      "Ter escolhido continuar."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de lembrar quando sentir que está ficando para trás?",
+    answers: [
+      "Meu caminho é meu.",
+      "Cada pessoa tem seu tempo.",
+      "Eu ainda estou avançando.",
+      "Não preciso competir."
+    ]
+  },
+
+  {
+    question: "Que lado seu aparece quando você se sente seguro?",
+    answers: [
+      "Meu lado divertido.",
+      "Meu lado carinhoso.",
+      "Meu lado criativo.",
+      "Meu lado verdadeiro."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de fazer por sua versão de amanhã?",
+    answers: [
+      "Descansar melhor hoje.",
+      "Tomar uma decisão importante.",
+      "Me tratar com mais calma.",
+      "Dar um pequeno passo."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de dizer para a pessoa que vê no espelho?",
+    answers: [
+      "Eu vejo você.",
+      "Você importa.",
+      "Obrigado por continuar.",
+      "Cuide-se."
+    ]
+  },
+
+  {
+    question: "Qual é uma coisa que você não precisa resolver hoje?",
+    answers: [
+      "Meu futuro inteiro.",
+      "A opinião de todo mundo.",
+      "Todos os meus problemas.",
+      "Quem eu preciso me tornar."
+    ]
+  },
+
+  {
+    question: "Que tipo de liberdade você gostaria de sentir mais?",
+    answers: [
+      "Liberdade para ser eu.",
+      "Liberdade para mudar.",
+      "Liberdade para descansar.",
+      "Liberdade para escolher."
+    ]
+  },
+
+  {
+    question: "Que parte de você mais desperta sua curiosidade?",
+    answers: [
+      "Quem ainda posso me tornar.",
+      "O que ainda posso criar.",
+      "Como ainda posso mudar.",
+      "O que ainda não descobri sobre mim."
+    ]
+  },
+
+  {
+    question: "Que parte da sua vida você gostaria de agradecer silenciosamente?",
+    answers: [
+      "As pessoas que encontrei.",
+      "As oportunidades que tive.",
+      "Os recomeços.",
+      "As coisas simples."
+    ]
+  },
+
+  {
+    question: "Qual é um sinal de que você está se cuidando melhor?",
+    answers: [
+      "Consigo dizer não.",
+      "Estou descansando mais.",
+      "Tenho ouvido meus sentimentos.",
+      "Estou respeitando meus limites."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de sentir ao olhar uma fotografia sua daqui a alguns anos?",
+    answers: [
+      "Carinho.",
+      "Orgulho.",
+      "Saudade boa.",
+      "Gratidão por essa versão de mim."
+    ]
+  },
+
+  {
+    question: "Que parte da vida você gostaria de observar com mais atenção?",
+    answers: [
+      "Os encontros.",
+      "Os detalhes.",
+      "As mudanças.",
+      "Os momentos que parecem comuns."
+    ]
+  },
+
+  {
+    question: "O que você gostaria de acreditar mais sobre você?",
+    answers: [
+      "Que sou suficiente.",
+      "Que sou capaz.",
+      "Que posso recomeçar.",
+      "Que mereço viver coisas boas."
+    ]
+  },
+
+  {
+    question: "Se este momento fosse uma pausa na sua história, para que ela serviria?",
+    answers: [
+      "Para respirar.",
+      "Para perceber onde estou.",
+      "Para agradecer.",
+      "Para escolher como quero continuar."
+    ]
+  }
+
+];
+  </script>
+
+  <script>
+const extraReflections = [
+
+  {
+    type: "frase",
+    text: "Talvez você não precise chegar a algum lugar para merecer apreciar onde está."
+  },
+
+  {
+    type: "frase",
+    text: "Você também existe fora das expectativas que colocaram sobre você."
+  },
+
+  {
+    type: "frase",
+    text: "Alguns passos só parecem pequenos porque ninguém viu a distância que você percorreu antes deles."
+  },
+
+  {
+    type: "frase",
+    text: "Há coisas bonitas acontecendo em você mesmo quando ninguém está olhando."
+  },
+
+  {
+    type: "frase",
+    text: "Você pode mudar sem precisar rejeitar quem já foi."
+  },
+
+  {
+    type: "frase",
+    text: "Nem todo silêncio está vazio. Às vezes, ele está cheio de você."
+  },
+
+  {
+    type: "frase",
+    text: "Sua existência não precisa ser produtiva o tempo inteiro para ter valor."
+  },
+
+  {
+    type: "frase",
+    text: "Nem tudo aquilo que demora está dando errado."
+  },
+
+  {
+    type: "frase",
+    text: "Talvez o seu próximo passo não precise ser grande. Só precisa ser seu."
+  },
+
+  {
+    type: "frase",
+    text: "Existem dias em que escolher continuar já diz muito sobre você."
+  },
+
+  {
+    type: "frase",
+    text: "Você pode sentir orgulho de coisas que ninguém aplaudiu."
+  },
+
+  {
+    type: "frase",
+    text: "Há uma diferença entre fazer uma pausa e desistir."
+  },
+
+  {
+    type: "frase",
+    text: "Você não precisa diminuir sua luz para caber no olhar de alguém."
+  },
+
+  {
+    type: "frase",
+    text: "Algumas respostas chegam somente quando a gente para de correr atrás delas."
+  },
+
+  {
+    type: "frase",
+    text: "Você pode olhar para trás sem precisar voltar."
+  },
+
+  {
+    type: "frase",
+    text: "Seu valor não aumenta nos dias em que você acerta nem diminui nos dias em que erra."
+  },
+
+  {
+    type: "frase",
+    text: "Há liberdade em perceber que nem todo mundo precisa compreender você."
+  },
+
+  {
+    type: "frase",
+    text: "A pessoa que você está se tornando também precisa de descanso."
+  },
+
+  {
+    type: "frase",
+    text: "Talvez haja mais de você para celebrar do que você costuma notar."
+  },
+
+  {
+    type: "frase",
+    text: "O que parece comum em você pode ser exatamente o que alguém considera especial."
+  },
+
+  {
+    type: "frase",
+    text: "Você não precisa esperar uma grande conquista para sentir orgulho de si."
+  },
+
+  {
+    type: "frase",
+    text: "Existem partes da sua história que só fazem sentido quando vistas de longe."
+  },
+
+  {
+    type: "frase",
+    text: "Nem toda mudança precisa ser visível para ser verdadeira."
+  },
+
+  {
+    type: "frase",
+    text: "Você pode aprender a ser casa para si."
+  },
+
+  {
+    type: "frase",
+    text: "Talvez aquilo que você chama de pouco tenha exigido muito de você."
+  },
+
+  {
+    type: "poema",
+    text:
+`Não é preciso
+se reconhecer inteiro.
+
+Às vezes,
+um pequeno pedaço de si
+já é um começo.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você chegou
+com tudo aquilo
+que ninguém consegue ver.
+
+Por alguns instantes,
+deixe isso
+também ocupar espaço.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Antes do próximo passo,
+existe este.
+
+Antes de amanhã,
+existe agora.
+
+E agora,
+você está aqui.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Seu rosto muda.
+
+Seu corpo muda.
+
+Seus sonhos mudam.
+
+Ainda assim,
+alguma parte de você
+continua dizendo:
+
+sou eu.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Talvez ninguém tenha visto
+quantas vezes
+você precisou
+recomeçar por dentro.
+
+Mas você estava lá.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Olhe para si
+sem procurar
+o que falta.
+
+Por um instante,
+perceba
+o que já existe.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Há caminhos
+que não deixam pegadas.
+
+Ainda assim,
+você sabe
+o quanto caminhou.`
+  },
+
+  {
+    type: "poema",
+    text:
+`O mundo continua
+lá fora.
+
+Por alguns segundos,
+você não precisa
+acompanhá-lo.
+
+Fique.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Talvez seu reflexo
+não conte sua história.
+
+Talvez seja por isso
+que seja preciso
+olhar um pouco além.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você não acordou
+a mesma pessoa
+todos os dias.
+
+Há pequenas mudanças
+acontecendo
+sem anúncio.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Entre tantas versões
+que você já foi,
+
+há uma
+que só existe
+neste instante.
+
+Conheça-a.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Há coisas
+que você deixou para trás.
+
+Há outras
+que escolheu carregar.
+
+Você também é
+essa escolha.`
+  },
+
+  {
+    type: "poema",
+    text:
+`O espelho
+não sabe seu nome.
+
+Não conhece seus medos.
+
+Não conhece seus sonhos.
+
+Por isso,
+não deixe que ele conte
+toda a sua história.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Você é feito
+de momentos
+que nem sequer fotografou.
+
+Ainda assim,
+eles continuam
+vivendo em você.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Algumas partes suas
+pedem mudança.
+
+Outras
+pedem apenas
+que você pare
+de lutar contra elas.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Talvez você não precise
+ser mais forte hoje.
+
+Talvez possa
+simplesmente
+ser humano.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Existe um espaço
+entre quem você foi
+e quem deseja ser.
+
+É nele
+que você está vivendo.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Se ninguém estivesse olhando,
+quem você seria?
+
+Talvez ali
+more uma parte
+muito verdadeira de você.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Não tenha tanta pressa
+em terminar
+de se descobrir.
+
+Você não é
+uma pergunta
+que precisa ser respondida
+hoje.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Há dias
+em que você se sente longe
+de si.
+
+Talvez seja suficiente
+parar
+e chamar seu próprio nome.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Uma fotografia
+guarda um instante.
+
+Você,
+porém,
+é todos os instantes
+que vieram antes dele.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Hoje você trouxe
+um rosto
+para diante desta câmera.
+
+Mas trouxe também
+tudo aquilo
+que não cabe
+em uma imagem.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Talvez você tenha mudado
+mais do que percebe.
+
+As mudanças silenciosas
+também contam.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Não procure
+uma versão perfeita
+no reflexo.
+
+Procure alguém
+que esteve presente
+em toda a sua história.`
+  },
+
+  {
+    type: "poema",
+    text:
+`Quando esta tela apagar,
+você continuará.
+
+Talvez essa seja
+a parte mais importante
+da imagem.`
+  }
+
+];
+  </script>
+
+<script src="qrcode.js"></script>
+<script src="qrcode_UTF8.js"></script>
+<script>
+
+  /* ==========================================================
+     VOCÊ SE VÊ?
+     Nenhuma resposta é salva.
+     Nenhuma fotografia é enviada.
+     Apenas o total de conclusões é salvo localmente no aparelho.
+     Não utiliza banco de dados ou servidor.
+  ========================================================== */
+
+
+  /* ==========================================================
+     BANCO DE PERGUNTAS
+
+     Existem 5 categorias.
+     O sistema escolhe UMA pergunta de cada categoria.
+     Resultado: sempre exatamente 5 perguntas variadas.
+  ========================================================== */
+
+  const questionCategories = {
+
+    amor: [
+
+      {
+        question: "Você se ama?",
+        answers: [
+          "Sim, muito.",
+          "Estou aprendendo.",
+          "Tenho tentado.",
+          "Um pouco mais a cada dia."
+        ]
+      },
+
+      {
+        question: "Você acredita que merece coisas boas?",
+        answers: [
+          "Sim.",
+          "Estou aprendendo a acreditar.",
+          "Às vezes tenho dúvidas.",
+          "Quero acreditar mais."
+        ]
+      },
+
+      {
+        question: "Você consegue olhar para quem você é com carinho?",
+        answers: [
+          "Sim.",
+          "Na maioria das vezes.",
+          "Estou aprendendo.",
+          "Quero conseguir."
+        ]
+      },
+
+      {
+        question: "Você fala com você da mesma forma que falaria com alguém que ama?",
+        answers: [
+          "Sim.",
+          "Estou tentando.",
+          "Nem sempre.",
+          "Preciso ser mais gentil."
+        ]
+      },
+
+      {
+        question: "Você reconhece que também merece cuidado?",
+        answers: [
+          "Sim.",
+          "Estou aprendendo.",
+          "Às vezes esqueço.",
+          "Quero lembrar mais disso."
+        ]
+      }
+
+    ],
+
+
+    conquistas: [
+
+      {
+        question: "Você reconhece tudo aquilo que já conseguiu superar?",
+        answers: [
+          "Sim, e tenho orgulho.",
+          "Às vezes esqueço.",
+          "Estou percebendo agora.",
+          "Nunca tinha parado para pensar."
+        ]
+      },
+
+      {
+        question: "Você consegue reconhecer suas pequenas conquistas?",
+        answers: [
+          "Sim.",
+          "Às vezes.",
+          "Quase nunca.",
+          "Quero prestar mais atenção."
+        ]
+      },
+
+      {
+        question: "Do que você mais se orgulha em você?",
+        answers: [
+          "Da minha força.",
+          "Da minha coragem.",
+          "Da minha história.",
+          "De não ter desistido."
+        ]
+      },
+
+      {
+        question: "Você percebe o quanto já cresceu?",
+        answers: [
+          "Sim.",
+          "Estou começando a perceber.",
+          "Às vezes.",
+          "Nunca tinha pensado nisso."
+        ]
+      },
+
+      {
+        question: "Se você pudesse agradecer a si mesmo por algo, pelo que seria?",
+        answers: [
+          "Por continuar.",
+          "Por ter tentado.",
+          "Por ter coragem.",
+          "Por não desistir."
+        ]
+      }
+
+    ],
+
+
+    cuidado: [
+
+      {
+        question: "Você tem respeitado o seu próprio tempo?",
+        answers: [
+          "Sim.",
+          "Estou aprendendo.",
+          "Nem sempre.",
+          "Quero começar."
+        ]
+      },
+
+      {
+        question: "Você consegue descansar sem se sentir culpado?",
+        answers: [
+          "Sim.",
+          "Estou aprendendo.",
+          "Ainda é difícil.",
+          "Preciso tentar mais."
+        ]
+      },
+
+      {
+        question: "O que você gostaria de oferecer mais a si mesmo?",
+        answers: [
+          "Paciência.",
+          "Carinho.",
+          "Descanso.",
+          "Confiança."
+        ]
+      },
+
+      {
+        question: "Qual parte de você merece mais carinho hoje?",
+        answers: [
+          "Minha mente.",
+          "Meu coração.",
+          "Meu corpo.",
+          "Tudo em mim."
+        ]
+      },
+
+      {
+        question: "Quando você erra, consegue se tratar com compreensão?",
+        answers: [
+          "Sim.",
+          "Na maioria das vezes.",
+          "Ainda é difícil.",
+          "Estou aprendendo."
+        ]
+      }
+
+    ],
+
+
+    identidade: [
+
+      {
+        question: "O que existe de bonito em você?",
+        answers: [
+          "Minha forma de amar.",
+          "Minha força.",
+          "Minha sensibilidade.",
+          "Meu jeito de ser."
+        ]
+      },
+
+      {
+        question: "Qual palavra combina mais com você hoje?",
+        answers: [
+          "Coragem.",
+          "Esperança.",
+          "Mudança.",
+          "Persistência."
+        ]
+      },
+
+      {
+        question: "O que você mais admira em você?",
+        answers: [
+          "Minha força.",
+          "Minha coragem.",
+          "Minha sensibilidade.",
+          "Minha maneira de cuidar."
+        ]
+      },
+
+      {
+        question: "Você tem orgulho da pessoa que está se tornando?",
+        answers: [
+          "Muito.",
+          "Estou começando a ter.",
+          "Alguns dias sim.",
+          "Ainda estou descobrindo."
+        ]
+      },
+
+      {
+        question: "Você reconhece a diferença que faz na vida de alguém?",
+        answers: [
+          "Sim.",
+          "Talvez.",
+          "Nunca pensei nisso.",
+          "Gostaria de perceber mais."
+        ]
+      }
+
+    ],
+
+
+    futuro: [
+
+      {
+        question: "Existe algum sonho seu que ainda merece uma chance?",
+        answers: [
+          "Sim.",
+          "Existem vários.",
+          "Estou procurando um.",
+          "Talvez eu tenha esquecido dele."
+        ]
+      },
+
+      {
+        question: "Se pudesse dizer algo para você agora, o que diria?",
+        answers: [
+          "Tenho orgulho de você.",
+          "Continue.",
+          "Você merece coisas boas.",
+          "Vá no seu tempo."
+        ]
+      },
+
+      {
+        question: "Quando pensa no seu futuro, o que gostaria de sentir?",
+        answers: [
+          "Paz.",
+          "Orgulho.",
+          "Liberdade.",
+          "Esperança."
+        ]
+      },
+
+      {
+        question: "O que você gostaria de lembrar mais vezes?",
+        answers: [
+          "Que eu sou capaz.",
+          "Que eu mereço descansar.",
+          "Que eu não preciso ter todas as respostas.",
+          "Que eu já percorri um longo caminho."
+        ]
+      },
+
+      {
+        question: "O que você gostaria de levar consigo depois de hoje?",
+        answers: [
+          "Mais carinho por mim.",
+          "Mais confiança.",
+          "Mais calma.",
+          "Mais coragem."
+        ]
+      }
+
+    ]
+
+  };
+
+
+  /* ==========================================================
+     FRASES CURTAS
+  ========================================================== */
+
+  const phrases = [
+
+    "Você não precisa florescer todos os dias para continuar sendo jardim.",
+
+    "Talvez você esteja indo melhor do que imagina.",
+
+    "Há coisas em você que sobreviveram a dias que ninguém viu.",
+
+    "Ir devagar também é seguir.",
+
+    "Você merece a mesma paciência que oferece aos outros.",
+
+    "Nem toda conquista faz barulho.",
+
+    "Existe coragem até em continuar.",
+
+    "Você mudou.\nCresceu.\nCaiu.\nLevantou.\nE ainda está aqui.",
+
+    "Há beleza também naquilo que ainda está em construção.",
+
+    "Você não precisa provar o seu valor para merecer carinho.",
+
+    "Você chegou até aqui carregando uma história que só você conhece.",
+
+    "Algumas das suas maiores vitórias aconteceram em silêncio.",
+
+    "Talvez hoje você não precise fazer mais.\nTalvez precise apenas perceber.",
+
+    "Você também merece ser tratado com delicadeza.",
+
+    "Não diminua a pessoa que você precisou se tornar para chegar até aqui.",
+
+    "Nem todos os dias precisam ser extraordinários para terem valor.",
+
+    "Existir também pode ser um ato de coragem.",
+
+    "Não compare os seus bastidores com o palco de outra pessoa.",
+
+    "Você não precisa ter todas as respostas hoje.",
+
+    "Ser gentil consigo também é uma forma de coragem."
+
+  ];
+
+
+  /* ==========================================================
+     POEMAS
+  ========================================================== */
+
+  const poems = [
+
+`Há dias em que você corre tanto
+que esquece quem está correndo.
+
+Hoje, por alguns segundos,
+apenas fique.`,
+
+`Entre tudo aquilo
+que você ainda deseja ser,
+
+não esqueça de abraçar
+aquilo que já é.`,
+
+`Você passou por lugares
+que achou que não atravessaria.
+
+Talvez seja hora
+de reconhecer
+quem atravessou.`,
+
+`Olhe devagar.
+
+Existe uma história inteira
+por trás dos olhos
+que você vê no espelho.`,
+
+`Nem sempre você precisa
+encontrar uma resposta.
+
+Algumas vezes,
+basta perceber
+que está aqui.`,
+
+`Você conhece suas falhas
+de perto.
+
+Talvez hoje seja dia
+de conhecer suas qualidades
+com a mesma atenção.`,
+
+`O tempo passou por você.
+
+Mas você também passou
+pelo tempo.`,
+
+`Há versões suas
+que ficaram pelo caminho.
+
+E há uma nova versão
+nascendo silenciosamente
+agora.`,
+
+`Nem tudo aquilo
+que doeu em você
+conseguiu apagar quem você é.
+
+Algumas coisas
+também ensinaram você
+a continuar.`,
+
+`Talvez você procure
+tanto pela próxima versão
+de quem deseja ser,
+
+que esqueça de agradecer
+a pessoa que trouxe você
+até aqui.`
+
+  ];
+
+
+  /* ==========================================================
+     MENSAGENS FINAIS
+  ========================================================== */
+
+  const finalMessages = [
+
+`Talvez você olhe para esta fotografia e veja apenas um rosto.
+
+Mas existe uma história inteira ali.
+
+Dias bons.
+Dias difíceis.
+Pessoas.
+Sonhos.
+Medos.
+Conquistas.
+
+Não esqueça de olhar para tudo isso também.`,
+
+`Há uma pessoa que esteve presente em absolutamente todos os dias da sua vida.
+
+Nos melhores momentos.
+
+E principalmente nos mais difíceis.
+
+Você.
+
+Talvez essa pessoa também mereça um pouco da sua atenção.`,
+
+`Você não é apenas aquilo que aparece em uma fotografia.
+
+Você é aquilo que sente.
+Aquilo que tentou.
+Aquilo que perdeu.
+Aquilo que conquistou.
+
+E tudo aquilo que ainda deseja viver.`,
+
+`Esta fotografia desaparecerá daqui a alguns instantes.
+
+Mas talvez alguma coisa possa permanecer:
+
+a maneira como você se olhou agora.`,
+
+`Você não precisa sair daqui com todas as respostas.
+
+Leve apenas este instante:
+
+o momento em que escolheu parar
+e fazer companhia a si mesmo.`,
+
+`Nenhuma fotografia consegue mostrar tudo aquilo que existe em uma pessoa.
+
+Ela não mostra as batalhas silenciosas.
+As pequenas vitórias.
+Os medos vencidos.
+As vezes em que você decidiu continuar.
+
+Por isso, quando olhar para você,
+tente enxergar além da imagem.`
+
+  ];
+
+
+  </script>
+  <script type="text/plain" id="legacyLogic">
+  /* Lógica anterior preservada apenas como referência, sem execução. */
+  if (false) {
+
+  /* ==========================================================
+     ELEMENTOS
+  ========================================================== */
+
+  const screens = document.querySelectorAll(".screen");
+
+  const startButton = document.getElementById("startButton");
+
+  const questionText =
+    document.getElementById("questionText");
+
+  const answersContainer =
+    document.getElementById("answersContainer");
+
+  const progressLabel =
+    document.getElementById("progressLabel");
+
+  const progressBar =
+    document.getElementById("progressBar");
+
+  const reflectionText =
+    document.getElementById("reflectionText");
+
+  const reflectionType =
+    document.getElementById("reflectionType");
+
+  const continueToPrivacy =
+    document.getElementById("continueToPrivacy");
+
+  const openCameraButton =
+    document.getElementById("openCameraButton");
+
+  const cameraError =
+    document.getElementById("cameraError");
+
+  const video =
+    document.getElementById("cameraVideo");
+
+  const photoCanvas =
+    document.getElementById("photoCanvas");
+
+  const finalPhotoCanvas =
+    document.getElementById("finalPhotoCanvas");
+
+  const captureButton =
+    document.getElementById("captureButton");
+
+  const cameraMessage =
+    document.getElementById("cameraMessage");
+
+  const seeFinalMessageButton =
+    document.getElementById("seeFinalMessageButton");
+
+  const finalText =
+    document.getElementById("finalText");
+
+  const finishButton =
+    document.getElementById("finishButton");
+
+  const restartButton =
+    document.getElementById("restartButton");
+
+  const adminHotspot =
+    document.getElementById("adminHotspot");
+
+  const adminPanel =
+    document.getElementById("adminPanel");
+
+  const adminParticipantCount =
+    document.getElementById("adminParticipantCount");
+
+  const adminCloseButton =
+    document.getElementById("adminCloseButton");
+
+  const adminResetButton =
+    document.getElementById("adminResetButton");
+
+  const homeSignature =
+    document.getElementById("homeSignature");
+
+  const beforeCameraArt =
+    document.getElementById("beforeCameraArt");
+
+
+  /* ==========================================================
+     ESTADO TEMPORÁRIO
+
+     Perguntas, respostas e fotografias nunca são salvas.
+     Apenas o total de experiências concluídas fica neste aparelho.
+  ========================================================== */
+
+  let currentQuestions = [];
+  let currentQuestionIndex = 0;
+
+  const questionHistory = new Set();
+
+  let previousSessionQuestionIds = new Set();
+
+  const reflectionHistory = new Set();
+
+  let nextReflectionType = "frase";
+
+  const decorHistory = new Set();
+
+  let stream = null;
+
+  let cameraMessageInterval = null;
+
+  let reflectionTimeout = null;
+
+  let interactionLocked = false;
+
+  let sessionCounted = false;
+
+  let adminTapCount = 0;
+
+  let adminTapTimer = null;
+
+  let resetConfirmationTimer = null;
+
+  const PARTICIPANT_COUNT_KEY =
+    "voce-se-ve-participacoes";
+
+
+  /* ==========================================================
+     UTILIDADES
+  ========================================================== */
+
+  function showScreen(id) {
+
+    screens.forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+    const nextScreen =
+      document.getElementById(id);
+
+    nextScreen.classList.add("active");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
+  function randomItem(array) {
+
+    return array[
+      Math.floor(Math.random() * array.length)
+    ];
+
+  }
+
+
+  function shuffle(array) {
+
+    const copy = [...array];
+
+    for (
+      let i = copy.length - 1;
+      i > 0;
+      i--
+    ) {
+
+      const j =
+        Math.floor(Math.random() * (i + 1));
+
+      [copy[i], copy[j]] =
+        [copy[j], copy[i]];
+
+    }
+
+    return copy;
+
+  }
+
+
+  function normalizeKey(text) {
+
+    return text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+  }
+
+
+  function inferQuestionCategory(item, index) {
+
+    const text = normalizeKey(item.question);
+
+    const rules = [
+      ["sentimentos", /sent|emoc|medo|saudade|alegr|feliz|esperanca|sensacao/],
+      ["autocuidado", /descans|corpo|limite|cuidado|culpa|desaceler|rotina|pressa|paz|leveza/],
+      ["conquistas", /orgulh|conquist|vitoria|super|persist|resist|coragem|recomec|continu/],
+      ["futuro", /futuro|amanha|sonho|deseja|tornar|proximo|caminho/],
+      ["crescimento", /mudan|cres|aprend|descobr|versao|transform/],
+      ["amor-proprio", /amor|carinho|valor|merec|suficient|gentil/],
+      ["relacoes", /pessoas|alguem|outros|ama|conversa|companhia/],
+      ["liberdade", /liberdade|escolh|opiniao|espont|dizer-nao|agradar/],
+      ["presenca", /presen|agora|momento|silencio|atencao|observar/]
+    ];
+
+    const match = rules.find(([, pattern]) => pattern.test(text));
+
+    if (match) return match[0];
+
+    const fallback = [
+      "identidade",
+      "amor-proprio",
+      "conquistas",
+      "autocuidado",
+      "sentimentos",
+      "futuro",
+      "crescimento",
+      "presenca"
+    ];
+
+    return fallback[index % fallback.length];
+
+  }
+
+
+  function buildCompleteQuestionBank() {
+
+    const combined = [];
+
+    Object.entries(questionCategories)
+      .forEach(([category, items]) => {
+        items.forEach(item => combined.push({ ...item, category }));
+      });
+
+    questions.forEach((item, index) => {
+      combined.push({
+        ...item,
+        category: inferQuestionCategory(item, index)
+      });
+    });
+
+    extraQuestions.forEach((item, index) => {
+      combined.push({
+        ...item,
+        category: inferQuestionCategory(item, index + questions.length)
+      });
+    });
+
+    const unique = new Map();
+
+    combined.forEach(item => {
+      const id = normalizeKey(item.question);
+      if (!unique.has(id)) unique.set(id, { ...item, id });
+    });
+
+    return [...unique.values()];
+
+  }
+
+
+  function buildCompleteReflectionBank() {
+
+    const combined = [
+      ...phrases.map(text => ({ type: "frase", text })),
+      ...poems.map(text => ({ type: "poema", text })),
+      ...reflections,
+      ...extraReflections
+    ];
+
+    const unique = new Map();
+
+    combined.forEach(item => {
+      const id = normalizeKey(item.text);
+      const type = item.type === "poema" ? "poema" : "frase";
+      if (!unique.has(id)) unique.set(id, { ...item, id, type });
+    });
+
+    return [...unique.values()];
+
+  }
+
+
+  const completeQuestionBank =
+    buildCompleteQuestionBank();
+
+  const completeReflectionBank =
+    buildCompleteReflectionBank();
+
+
+  const artTemplates = {
+
+    eye: `
+      <svg class="line-art" viewBox="0 0 140 90" aria-hidden="true">
+        <path class="draw" d="M13 47 C37 18 101 17 127 45" />
+        <path class="draw" d="M13 47 C42 69 99 70 127 45" />
+        <circle cx="70" cy="45" r="12" />
+      </svg>`,
+
+    faceCircle: `
+      <svg class="line-art" viewBox="0 0 180 62" aria-hidden="true">
+        <path class="draw" d="M8 31 C18 18 39 18 49 31 C39 44 18 44 8 31 C18 18 39 18 49 31" />
+        <circle cx="29" cy="31" r="5.5" />
+        <path d="M66 14 C76 19 80 25 80 31 C80 37 76 43 66 48 M92 14 C84 20 82 25 82 31 C82 37 85 42 92 48 M81 8 L81 54" />
+        <path class="draw" d="M134 7 C155 3 173 19 173 31 C173 46 158 58 142 57 C126 56 114 43 115 28 C116 17 123 10 131 8" />
+      </svg>`,
+
+    doubleFaces: `
+      <svg class="line-art" viewBox="0 0 120 120" aria-hidden="true">
+        <path class="draw" d="M39 101 C30 86 29 66 38 54 C43 47 47 42 46 30 C59 34 68 44 67 56 C66 65 58 70 60 79 C62 89 71 95 80 99" />
+        <path class="draw" d="M61 103 C52 88 51 68 60 56 C65 49 69 44 68 32 C81 36 90 46 89 58 C88 67 80 72 82 81 C84 91 93 97 102 101" />
+      </svg>`,
+
+    mirror: `
+      <svg class="line-art" viewBox="0 0 170 76" aria-hidden="true">
+        <path class="draw" d="M55 8 C34 8 20 21 20 36 C20 52 34 64 55 64 C76 64 90 52 90 36 C90 21 76 8 55 8 Z" />
+        <path d="M55 64 L55 70 M39 72 C47 68 63 68 71 72" />
+        <path class="draw" d="M113 14 C132 10 149 22 150 36 C151 48 141 58 126 61" opacity=".65" />
+        <path d="M103 36 L112 36" opacity=".45" />
+      </svg>`,
+
+    continuous: `
+      <svg class="line-art" viewBox="0 0 140 100" aria-hidden="true">
+        <path class="draw" d="M7 75 C23 74 27 60 35 51 C43 42 45 26 57 20 C68 15 78 24 77 36 C76 48 65 52 65 63 C65 76 81 84 94 78 C108 72 111 55 132 55" />
+      </svg>`,
+
+    sprout: `
+      <svg class="line-art" viewBox="0 0 110 120" aria-hidden="true">
+        <path class="draw" d="M56 103 C56 82 55 62 55 40" />
+        <path d="M54 58 C37 57 26 47 25 31 C42 31 53 40 54 58" />
+        <path d="M56 45 C62 28 74 20 90 22 C87 38 75 47 56 45" />
+        <path d="M36 104 C47 98 66 98 77 104" />
+      </svg>`,
+
+    imperfectCircle: `
+      <svg class="line-art" viewBox="0 0 120 120" aria-hidden="true">
+        <path class="draw" d="M82 15 C104 26 113 48 105 72 C97 96 73 110 48 104 C23 99 9 75 15 50 C20 28 38 14 60 13 C66 13 72 14 77 16" />
+      </svg>`,
+
+    stars: `
+      <svg class="line-art" viewBox="0 0 120 100" aria-hidden="true">
+        <path d="M29 27 L31 35 L39 37 L31 39 L29 47 L27 39 L19 37 L27 35 Z" />
+        <circle class="soft-fill" cx="82" cy="29" r="2" />
+        <circle class="soft-fill" cx="69" cy="66" r="1.7" />
+      </svg>`,
+
+    hands: `
+      <svg class="line-art" viewBox="0 0 150 100" aria-hidden="true">
+        <path class="draw" d="M8 72 C28 67 41 50 55 44 C62 41 65 47 60 52 L48 61 C58 56 67 50 72 53 C77 57 71 63 65 67 C55 75 42 80 28 84" />
+        <path class="draw" d="M142 72 C122 67 109 50 95 44 C88 41 85 47 90 52 L102 61 C92 56 83 50 78 53 C73 57 79 63 85 67 C95 75 108 80 122 84" />
+      </svg>`,
+
+    silhouette: `
+      <svg class="line-art" viewBox="0 0 120 130" aria-hidden="true">
+        <circle class="draw" cx="60" cy="42" r="24" />
+        <path class="draw" d="M20 115 C22 88 38 75 60 75 C82 75 98 88 100 115" />
+      </svg>`,
+
+    reflection: `
+      <svg class="line-art" viewBox="0 0 170 76" aria-hidden="true">
+        <path class="draw" d="M19 66 C27 57 31 48 29 38 C27 28 34 17 45 13 C56 17 62 26 60 36 C58 44 51 48 52 55 C53 61 58 65 65 68" />
+        <path d="M85 7 L85 70" opacity=".42" />
+        <path class="draw" d="M150 66 C143 58 140 50 141 42 C142 33 138 26 130 22 C126 20 122 19 119 20" opacity=".72" />
+        <path d="M105 33 C109 27 115 23 121 21" opacity=".45" />
+      </svg>`
+
+  };
+
+
+  function chooseDecorName(text) {
+
+    const normalized = normalizeKey(text);
+    let preferred = [];
+
+    if (/cres|mudan|aprend|floresc|jardim/.test(normalized)) {
+      preferred = ["sprout", "imperfectCircle"];
+    } else if (/carinho|cuidado|acolh|amor|gentil/.test(normalized)) {
+      preferred = ["hands", "continuous"];
+    } else if (/perfeit|falha|erro|consert/.test(normalized)) {
+      preferred = ["imperfectCircle"];
+    } else if (/espelho|reflex|olhar|enxerg|fotografia/.test(normalized)) {
+      preferred = ["eye", "doubleFaces", "reflection"];
+    } else if (/pessoa|quem-voce|identidade|versao/.test(normalized)) {
+      preferred = ["silhouette", "doubleFaces", "continuous"];
+    } else {
+      preferred = ["eye", "continuous", "stars", "imperfectCircle"];
+    }
+
+    let available = preferred.filter(name => !decorHistory.has(name));
+
+    if (available.length === 0) {
+      available = Object.keys(artTemplates)
+        .filter(name => !["faceCircle", "mirror", "reflection"].includes(name))
+        .filter(name => !decorHistory.has(name));
+    }
+
+    if (available.length === 0) {
+      decorHistory.clear();
+      available = preferred;
+    }
+
+    const chosen = randomItem(available);
+    decorHistory.add(chosen);
+    return chosen;
+
+  }
+
+
+  function applyDecor(screenId, text = "", type = "", forcedName = "") {
+
+    const screen = document.getElementById(screenId);
+    if (!screen) return;
+
+    screen.querySelectorAll(".screen-art")
+      .forEach(element => element.remove());
+
+    if (screenId === "reflectionScreen") {
+      const reflection = screen.querySelector(".reflection");
+      reflection.classList.toggle("is-poem", type === "poema");
+      if (type === "poema") return;
+    }
+
+    if (screenId === "questionScreen" && Math.random() < .65) return;
+    if (screenId === "reflectionScreen" && Math.random() < .28) return;
+
+    const name = forcedName || chooseDecorName(text);
+    const artwork = document.createElement("div");
+    artwork.className = "screen-art";
+    artwork.setAttribute("aria-hidden", "true");
+    artwork.innerHTML = artTemplates[name];
+    screen.prepend(artwork);
+
+  }
+
+
+  function getParticipantCount() {
+
+    try {
+
+      const value = Number(
+        localStorage.getItem(PARTICIPANT_COUNT_KEY)
+      );
+
+      return Number.isFinite(value) && value > 0
+        ? Math.floor(value)
+        : 0;
+
+    } catch (error) {
+
+      return 0;
+
+    }
+
+  }
+
+
+  function updateParticipantCounters(count = getParticipantCount()) {
+
+    const label = count === 1
+      ? "1 participação concluída neste dispositivo"
+      : `${count} participações concluídas neste dispositivo`;
+
+    adminParticipantCount.textContent = String(count);
+    adminParticipantCount.setAttribute("aria-label", label);
+
+  }
+
+
+  function countCompletedSession() {
+
+    if (sessionCounted) return getParticipantCount();
+
+    sessionCounted = true;
+
+    const nextCount = getParticipantCount() + 1;
+
+    try {
+
+      localStorage.setItem(
+        PARTICIPANT_COUNT_KEY,
+        String(nextCount)
+      );
+
+    } catch (error) {
+      /* A experiência continua mesmo se o navegador bloquear o contador. */
+    }
+
+    updateParticipantCounters(nextCount);
+
+    return nextCount;
+
+  }
+
+
+  /* ==========================================================
+     ESCOLHE EXATAMENTE 5 PERGUNTAS
+
+     Uma de cada categoria.
+  ========================================================== */
+
+  function generateQuestions() {
+
+    const selected = [];
+    const selectedIds = new Set();
+    const selectedCategories = new Set();
+
+    while (selected.length < 5) {
+
+      let available = completeQuestionBank.filter(item => {
+        return !questionHistory.has(item.id) &&
+          !selectedIds.has(item.id) &&
+          !previousSessionQuestionIds.has(item.id) &&
+          !selectedCategories.has(item.category);
+      });
+
+      if (available.length === 0) {
+        available = completeQuestionBank.filter(item => {
+          return !questionHistory.has(item.id) &&
+            !selectedIds.has(item.id) &&
+            !previousSessionQuestionIds.has(item.id);
+        });
+      }
+
+      if (available.length === 0 && questionHistory.size >= completeQuestionBank.length) {
+        questionHistory.clear();
+        continue;
+      }
+
+      if (available.length === 0) {
+        available = completeQuestionBank.filter(item => {
+          return !questionHistory.has(item.id) &&
+            !selectedIds.has(item.id);
+        });
+      }
+
+      if (available.length === 0) break;
+
+      const chosen = randomItem(available);
+
+      selected.push(chosen);
+      selectedIds.add(chosen.id);
+      selectedCategories.add(chosen.category);
+      questionHistory.add(chosen.id);
+
+    }
+
+    currentQuestions = shuffle(selected);
+    previousSessionQuestionIds = new Set(selectedIds);
+
+  }
+
+
+  /* ==========================================================
+     INÍCIO
+  ========================================================== */
+
+  startButton.addEventListener(
+    "click",
+    async () => {
+
+      clearSession();
+
+      sessionCounted = false;
+
+      generateQuestions();
+
+      currentQuestionIndex = 0;
+
+      /* tenta deixar em tela cheia */
+      try {
+
+        if (
+          document.documentElement.requestFullscreen
+        ) {
+
+          await document.documentElement
+            .requestFullscreen();
+
+        }
+
+      } catch (error) {
+        /* Se não puder usar fullscreen, continua normalmente. */
+      }
+
+      showQuestion();
+
+    }
+  );
+
+
+  /* ==========================================================
+     MOSTRA PERGUNTA
+  ========================================================== */
+
+  function showQuestion() {
+
+    interactionLocked = false;
+
+    showScreen("questionScreen");
+
+    const question =
+      currentQuestions[currentQuestionIndex];
+
+    questionText.textContent =
+      question.question;
+
+    progressLabel.textContent =
+      `${currentQuestionIndex + 1} de 5`;
+
+    progressBar.style.width =
+      `${((currentQuestionIndex + 1) / 5) * 100}%`;
+
+    answersContainer.innerHTML = "";
+
+    question.answers.forEach((answerText, index) => {
+
+      const button =
+        document.createElement("button");
+
+      button.className = "answer";
+
+      button.textContent =
+        answerText;
+
+      button.style.animationDelay =
+        `${120 + (index * 75)}ms`;
+
+      button.addEventListener(
+        "click",
+        handleAnswer
+      );
+
+      answersContainer.appendChild(
+        button
+      );
+
+    });
+
+    applyDecor(
+      "questionScreen",
+      question.question,
+      "question"
+    );
+
+  }
+
+
+  /* ==========================================================
+     RESPOSTA
+
+     IMPORTANTE:
+     A resposta NÃO é armazenada.
+
+     O clique serve apenas para avançar.
+  ========================================================== */
+
+  function handleAnswer() {
+
+    /* Não guardamos o conteúdo escolhido */
+
+    if (interactionLocked) return;
+
+    interactionLocked = true;
+
+    answersContainer
+      .querySelectorAll("button")
+      .forEach(button => {
+        button.disabled = true;
+      });
+
+    if (
+      currentQuestionIndex < 4
+    ) {
+
+      showRandomReflection();
+
+    } else {
+
+      reflectionTimeout = setTimeout(() => {
+
+        showScreen(
+          "beforeCameraScreen"
+        );
+
+      }, 250);
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     FRASE / POEMA ALEATÓRIO
+  ========================================================== */
+
+  function takeNextReflection() {
+
+    if (reflectionHistory.size >= completeReflectionBank.length) {
+      reflectionHistory.clear();
+    }
+
+    let available = completeReflectionBank.filter(item => {
+      return !reflectionHistory.has(item.id) &&
+        item.type === nextReflectionType;
+    });
+
+    if (available.length === 0) {
+      available = completeReflectionBank.filter(item => {
+        return !reflectionHistory.has(item.id);
+      });
+    }
+
+    if (available.length === 0) {
+      reflectionHistory.clear();
+      available = completeReflectionBank.filter(item => {
+        return item.type === nextReflectionType;
+      });
+    }
+
+    const chosen = randomItem(available);
+
+    reflectionHistory.add(chosen.id);
+    nextReflectionType = chosen.type === "frase"
+      ? "poema"
+      : "frase";
+
+    return chosen;
+
+  }
+
+  function showRandomReflection() {
+
+    const chosen = takeNextReflection();
+
+
+    reflectionType.textContent =
+      chosen.type === "poema"
+        ? "Um instante"
+        : "Um lembrete";
+
+    reflectionText.textContent =
+      chosen.text;
+
+    applyDecor(
+      "reflectionScreen",
+      chosen.text,
+      chosen.type
+    );
+
+
+    showScreen(
+      "reflectionScreen"
+    );
+
+
+    /*
+      O poema fica na tela por um tempo proporcional
+      ao tamanho do texto.
+    */
+
+    const duration =
+      Math.min(
+        Math.max(
+          3200,
+          chosen.text.length * 38
+        ),
+        7000
+      );
+
+
+    reflectionTimeout = setTimeout(() => {
+
+      currentQuestionIndex++;
+
+      showQuestion();
+
+    }, duration);
+
+  }
+
+
+  /* ==========================================================
+     TRANSIÇÃO PARA A CÂMERA
+  ========================================================== */
+
+  continueToPrivacy.addEventListener(
+    "click",
+    () => {
+
+      showScreen(
+        "privacyScreen"
+      );
+
+    }
+  );
+
+
+  /* ==========================================================
+     ABRIR CÂMERA
+  ========================================================== */
+
+  openCameraButton.addEventListener(
+    "click",
+    async () => {
+
+      cameraError.style.display =
+        "none";
+
+      cameraError.textContent = "";
+
+      try {
+
+        stream =
+          await navigator.mediaDevices
+            .getUserMedia({
+
+              video: {
+
+                facingMode: "user",
+
+                width: {
+                  ideal: 1280
+                },
+
+                height: {
+                  ideal: 1920
+                }
+
+              },
+
+              audio: false
+
+            });
+
+
+        video.srcObject = stream;
+
+        await video.play();
+
+        showScreen(
+          "cameraScreen"
+        );
+
+        startCameraMessages();
+
+      } catch (error) {
+
+        console.error(error);
+
+        cameraError.style.display =
+          "block";
+
+        cameraError.textContent =
+          "Não foi possível acessar a câmera. Verifique se o navegador recebeu permissão para utilizar a câmera e tente novamente.";
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================================
+     FRASES ENQUANTO A PESSOA SE OLHA
+  ========================================================== */
+
+  function startCameraMessages() {
+
+    clearInterval(
+      cameraMessageInterval
+    );
+
+    const messages = [
+
+      "Olhe para você.",
+
+      "Respire.",
+
+      "Não procure perfeição.",
+
+      "Não procure defeitos.",
+
+      "Por alguns segundos, esqueça como os outros enxergam você.",
+
+      "Não pense no melhor ângulo.",
+
+      "Apenas fique aqui.",
+
+      "Apenas se veja."
+
+    ];
+
+
+    let index = 0;
+
+    cameraMessage.textContent =
+      messages[index];
+
+
+    cameraMessageInterval =
+      setInterval(() => {
+
+        index++;
+
+        if (
+          index >= messages.length
+        ) {
+
+          clearInterval(
+            cameraMessageInterval
+          );
+
+          return;
+
+        }
+
+        cameraMessage.textContent =
+          messages[index];
+
+      }, 2700);
+
+  }
+
+
+  /* ==========================================================
+     CAPTURA TEMPORÁRIA
+
+     A imagem é desenhada somente em um <canvas>.
+
+     Não é enviada.
+     Não é baixada.
+     Não vai para servidor.
+     Não vai para localStorage.
+  ========================================================== */
+
+  captureButton.addEventListener(
+    "click",
+    capturePhoto
+  );
+
+
+  function capturePhoto() {
+
+    if (
+      !video.videoWidth ||
+      !video.videoHeight
+    ) {
+
+      return;
+
+    }
+
+
+    clearInterval(
+      cameraMessageInterval
+    );
+
+
+    const width =
+      video.videoWidth;
+
+    const height =
+      video.videoHeight;
+
+
+    /*
+      Canvas temporário
+    */
+
+    photoCanvas.width =
+      width;
+
+    photoCanvas.height =
+      height;
+
+    const context =
+      photoCanvas.getContext("2d");
+
+
+    /*
+      Espelha a captura
+      para ficar igual ao preview da selfie.
+    */
+
+    context.save();
+
+    context.translate(
+      width,
+      0
+    );
+
+    context.scale(
+      -1,
+      1
+    );
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      width,
+      height
+    );
+
+    context.restore();
+
+
+    /*
+      Copia para o canvas visual da tela seguinte.
+    */
+
+    finalPhotoCanvas.width =
+      width;
+
+    finalPhotoCanvas.height =
+      height;
+
+    const finalContext =
+      finalPhotoCanvas.getContext("2d");
+
+    finalContext.drawImage(
+      photoCanvas,
+      0,
+      0
+    );
+
+    finalPhotoCanvas.style.display =
+      "block";
+
+
+    /*
+      Para imediatamente a câmera
+      depois da captura.
+    */
+
+    stopCamera();
+
+
+    showScreen(
+      "photoScreen"
+    );
+
+  }
+
+
+  /* ==========================================================
+     MENSAGEM FINAL
+  ========================================================== */
+
+  seeFinalMessageButton.addEventListener(
+    "click",
+    () => {
+
+      /*
+        Sorteia uma mensagem diferente.
+      */
+
+      finalText.textContent =
+        randomItem(
+          finalMessages
+        );
+
+      applyDecor(
+        "finalScreen",
+        finalText.textContent,
+        "final",
+        "imperfectCircle"
+      );
+
+
+      /*
+        A fotografia já não é necessária
+        nessa tela.
+
+        Apagamos os pixels.
+      */
+
+      clearPhoto();
+
+
+      showScreen(
+        "finalScreen"
+      );
+
+    }
+  );
+
+
+  /* ==========================================================
+     FINALIZAR
+  ========================================================== */
+
+  finishButton.addEventListener(
+    "click",
+    () => {
+
+      countCompletedSession();
+
+      clearSession();
+
+      showScreen(
+        "goodbyeScreen"
+      );
+
+    }
+  );
+
+
+  restartButton.addEventListener(
+    "click",
+    () => {
+
+      clearSession();
+
+      showScreen(
+        "homeScreen"
+      );
+
+    }
+  );
+
+
+  /* ==========================================================
+     PARAR CÂMERA
+  ========================================================== */
+
+  function stopCamera() {
+
+    if (stream) {
+
+      stream.getTracks()
+        .forEach(track => {
+
+          track.stop();
+
+        });
+
+      stream = null;
+
+    }
+
+
+    video.srcObject =
+      null;
+
+
+    clearInterval(
+      cameraMessageInterval
+    );
+
+  }
+
+
+  /* ==========================================================
+     APAGAR FOTOGRAFIA DA MEMÓRIA VISUAL
+  ========================================================== */
+
+  function clearPhoto() {
+
+    const context =
+      photoCanvas.getContext("2d");
+
+    context.clearRect(
+      0,
+      0,
+      photoCanvas.width,
+      photoCanvas.height
+    );
+
+    photoCanvas.width = 0;
+    photoCanvas.height = 0;
+
+
+    const finalContext =
+      finalPhotoCanvas.getContext("2d");
+
+    finalContext.clearRect(
+      0,
+      0,
+      finalPhotoCanvas.width,
+      finalPhotoCanvas.height
+    );
+
+    finalPhotoCanvas.width = 0;
+    finalPhotoCanvas.height = 0;
+
+    finalPhotoCanvas.style.display =
+      "none";
+
+  }
+
+
+  /* ==========================================================
+     LIMPAR SESSÃO
+
+     Remove absolutamente tudo da experiência atual.
+  ========================================================== */
+
+  function clearSession() {
+
+    clearTimeout(reflectionTimeout);
+
+    reflectionTimeout = null;
+
+    interactionLocked = false;
+
+    stopCamera();
+
+    clearPhoto();
+
+    currentQuestions = [];
+
+    currentQuestionIndex = 0;
+
+    answersContainer.innerHTML =
+      "";
+
+    questionText.textContent =
+      "";
+
+    finalText.textContent =
+      "";
+
+    progressBar.style.width =
+      "0%";
+
+    cameraMessage.textContent =
+      "Olhe para você.";
+
+    cameraError.style.display =
+      "none";
+
+    cameraError.textContent =
+      "";
+
+  }
+
+
+  /* ==========================================================
+     SEGURANÇA EXTRA
+
+     Se a pessoa fechar ou sair da página,
+     a câmera é interrompida.
+  ========================================================== */
+
+  window.addEventListener(
+    "beforeunload",
+    () => {
+
+      stopCamera();
+      clearPhoto();
+
+    }
+  );
+
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+
+      /*
+        Não encerramos automaticamente ao minimizar,
+        porque alguns tablets podem abrir a janela
+        de permissão da câmera.
+
+        A câmera continua sendo removida no fim da sessão.
+      */
+
+    }
+  );
+
+
+  adminHotspot.addEventListener("click", () => {
+
+    adminTapCount++;
+
+    clearTimeout(adminTapTimer);
+    adminTapTimer = setTimeout(() => {
+      adminTapCount = 0;
+    }, 3500);
+
+    if (adminTapCount >= 5) {
+      adminTapCount = 0;
+      clearTimeout(adminTapTimer);
+      updateParticipantCounters();
+      adminPanel.hidden = false;
+      adminCloseButton.focus();
+    }
+
+  });
+
+
+  adminCloseButton.addEventListener("click", () => {
+    adminPanel.hidden = true;
+    adminResetButton.textContent = "Zerar contador";
+  });
+
+
+  adminPanel.addEventListener("click", event => {
+    if (event.target === adminPanel) adminPanel.hidden = true;
+  });
+
+
+  adminResetButton.addEventListener("click", () => {
+
+    if (adminResetButton.dataset.confirm !== "true") {
+
+      adminResetButton.dataset.confirm = "true";
+      adminResetButton.textContent = "Toque novamente para confirmar";
+
+      clearTimeout(resetConfirmationTimer);
+      resetConfirmationTimer = setTimeout(() => {
+        adminResetButton.dataset.confirm = "false";
+        adminResetButton.textContent = "Zerar contador";
+      }, 3500);
+
+      return;
+
+    }
+
+    try {
+      localStorage.removeItem(PARTICIPANT_COUNT_KEY);
+    } catch (error) {
+      /* O painel continua funcionando mesmo sem armazenamento disponível. */
+    }
+
+    adminResetButton.dataset.confirm = "false";
+    adminResetButton.textContent = "Zerar contador";
+    updateParticipantCounters(0);
+
+  });
+
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !adminPanel.hidden) {
+      adminPanel.hidden = true;
+    }
+  });
+
+
+  homeSignature.innerHTML = artTemplates.faceCircle;
+  beforeCameraArt.innerHTML = artTemplates.mirror;
+
+
+  updateParticipantCounters();
+  }
+
+</script>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const screens = document.querySelectorAll(".screen");
+  const startButton = $("startButton");
+  const homeSignature = $("homeSignature");
+  const homeInvitation = $("homeInvitation");
+  const homePrivacyNote = $("homePrivacyNote");
+  const soundToggle = $("soundToggle");
+  const questionText = $("questionText");
+  const answersContainer = $("answersContainer");
+  const progressLabel = $("progressLabel");
+  const progressBar = $("progressBar");
+  const reflectionText = $("reflectionText");
+  const reflectionType = $("reflectionType");
+  const beforeCameraArt = $("beforeCameraArt");
+  const continueToPrivacy = $("continueToPrivacy");
+  const openCameraButton = $("openCameraButton");
+  const cameraError = $("cameraError");
+  const cameraScreen = $("cameraScreen");
+  const video = $("cameraVideo");
+  const delayedMirrorCanvas = $("delayedMirrorCanvas");
+  const photoCanvas = $("photoCanvas");
+  const finalPhotoCanvas = $("finalPhotoCanvas");
+  const captureButton = $("captureButton");
+  const cameraMessage = $("cameraMessage");
+  const photoScreen = $("photoScreen");
+  const photoCaption = $("photoCaption");
+  const finalWord = $("finalWord");
+  const wordOptions = $("wordOptions");
+  const wordForm = $("wordForm");
+  const customWord = $("customWord");
+  const secretCircle = $("secretCircle");
+  const secretTitle = $("secretTitle");
+  const secretInstruction = $("secretInstruction");
+  const secretContent = $("secretContent");
+  const secretPhrase = $("secretPhrase");
+  const qrCanvas = $("qrCanvas");
+  const continueAfterSecret = $("continueAfterSecret");
+  const lastLookVideo = $("lastLookVideo");
+  const lastLookMessage = $("lastLookMessage");
+  const goodbyeArt = $("goodbyeArt");
+  const collectiveMural = $("collectiveMural");
+  const previousWish = $("previousWish");
+  const adminHotspot = $("adminHotspot");
+  const adminPanel = $("adminPanel");
+  const adminParticipantCount = $("adminParticipantCount");
+  const adminCloseButton = $("adminCloseButton");
+  const adminResetButton = $("adminResetButton");
+  const adminMuralButton = $("adminMuralButton");
+  const muralMode = $("muralMode");
+  const muralModeWords = $("muralModeWords");
+  const muralCloseButton = $("muralCloseButton");
+  const breathingCircle = $("breathingCircle");
+  const breathingMessage = $("breathingMessage");
+  const animatedInterludeArt = $("animatedInterludeArt");
+  const silentPauseMessage = $("silentPauseMessage");
+  const noAnswerQuestion = $("noAnswerQuestion");
+  const noAnswerReply = $("noAnswerReply");
+  const holdCircle = $("holdCircle");
+  const holdMessage = $("holdMessage");
+  const signatureCanvas = $("signatureCanvas");
+  const signatureHint = $("signatureHint");
+  const finishSignatureButton = $("finishSignatureButton");
+  const cameraPreludeMessage = $("cameraPreludeMessage");
+
+  const artTemplates = {
+    eye: `<svg class="line-art" viewBox="0 0 140 72"><path class="draw" d="M12 38 C38 13 102 13 128 38 C101 60 39 60 12 38"/><circle cx="70" cy="37" r="9"/></svg>`,
+    faceCircle: `<svg class="line-art" viewBox="0 0 180 64"><path class="draw" d="M19 55 C29 43 33 34 31 25 C29 16 36 8 46 6 C57 9 63 18 60 28 C58 36 51 41 52 49 C53 54 57 57 62 59"/><path class="draw" d="M117 9 C139 3 163 18 166 35 C168 49 156 59 141 59 C124 59 111 47 112 32 C113 22 118 14 126 10"/></svg>`,
+    mirror: `<svg class="line-art" viewBox="0 0 150 88"><path class="draw" d="M31 8 C13 18 10 62 31 76 C51 87 79 77 85 51 C91 24 72 5 48 6"/><path d="M48 78 L48 84 M32 85 L65 85"/><path class="draw" d="M105 21 C122 17 139 28 140 43 C141 57 131 68 116 70" opacity=".55"/></svg>`,
+    continuous: `<svg class="line-art" viewBox="0 0 150 92"><path class="draw" d="M8 71 C25 68 31 52 42 43 C51 35 51 18 65 15 C78 13 85 27 79 38 C74 48 64 52 68 64 C72 78 92 80 104 70 C116 60 124 52 142 54"/></svg>`,
+    sprout: `<svg class="line-art" viewBox="0 0 110 110"><path class="draw" d="M55 98 C55 76 55 57 54 35 M54 56 C37 55 27 46 26 31 C42 31 52 40 54 56 M56 43 C63 28 75 21 89 23 C86 37 74 44 56 43"/></svg>`,
+    imperfectCircle: `<svg class="line-art" viewBox="0 0 110 110"><path class="draw" d="M75 13 C96 23 105 45 98 67 C91 91 68 103 45 98 C21 93 8 70 14 47 C19 27 36 14 56 12 C62 12 67 13 71 14"/></svg>`,
+    reflection: `<svg class="line-art" viewBox="0 0 170 82"><path class="draw" d="M21 70 C30 58 32 48 29 38 C26 26 34 14 46 11 C59 16 64 27 60 38 C57 47 50 53 55 68"/><path d="M85 7 L85 75" opacity=".35"/><path class="draw" d="M149 69 C142 58 140 49 142 41 C144 30 137 23 126 20" opacity=".58"/></svg>`
+  };
+
+  const finalWords = ["CALMA", "CORAGEM", "PRESENÇA", "CARINHO", "TEMPO", "LIBERDADE"];
+  const communalChoices = ["coragem", "calma", "amor", "recomeço", "liberdade", "esperança", "carinho", "paz"];
+  const noAnswerQuestions = [
+    "Quando foi a última vez que alguém perguntou como você realmente está?",
+    "Que parte de você ainda espera ser escutada?",
+    "O que o seu silêncio diria, se pudesse falar?"
+  ];
+  const secretMessages = [
+    "Que você se trate com a delicadeza que oferece ao mundo.",
+    "Nem tudo precisa ser resolvido hoje.",
+    "Há coragem também em parar.",
+    "Você não chegou tarde à própria vida.",
+    "Leve consigo aquilo que fez você permanecer."
+  ];
+  const PARTICIPANT_COUNT_KEY = "voce-se-ve-participacoes";
+
+  let currentQuestions = [];
+  let currentQuestionIndex = 0;
+  let sessionInterludes = [];
+  let interactionLocked = false;
+  let stream = null;
+  let lastLookStream = null;
+  let delayedInterval = null;
+  let cameraMessageInterval = null;
+  let photoAnimationFrame = null;
+  let sessionCounted = false;
+  let currentFinalWord = "PRESENÇA";
+  let useLastLook = false;
+  let useDelayedReflection = false;
+  let holdCompleted = false;
+  let holdTimer = null;
+  let drawing = false;
+  let signatureHasInk = false;
+  let soundEnabled = true;
+  let audioContext = null;
+  let ambientInterval = null;
+  let ambientNodes = [];
+  let adminTapCount = 0;
+  let adminTapTimer = null;
+  let resetConfirmationTimer = null;
+  const timers = new Set();
+  const questionHistory = new Set();
+  let previousSessionQuestionIds = new Set();
+  const reflectionHistory = new Set();
+  let nextReflectionType = "frase";
+  const collectiveWords = [];
+
+  const randomItem = array => array[Math.floor(Math.random() * array.length)];
+  const shuffle = array => {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+  const later = (fn, ms) => {
+    const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
+    timers.add(id);
+    return id;
+  };
+  const clearTimers = () => {
+    timers.forEach(clearTimeout);
+    timers.clear();
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  };
+  const normalizeKey = text => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  function inferQuestionCategory(item, index) {
+    const text = normalizeKey(item.question);
+    const rules = [
+      ["sentimentos", /sent|emoc|medo|saudade|alegr|feliz|esperanca|sensacao/],
+      ["autocuidado", /descans|corpo|limite|cuidado|culpa|desaceler|rotina|pressa|paz|leveza/],
+      ["conquistas", /orgulh|conquist|vitoria|super|persist|resist|coragem|recomec|continu/],
+      ["futuro", /futuro|amanha|sonho|deseja|tornar|proximo|caminho/],
+      ["crescimento", /mudan|cres|aprend|descobr|versao|transform/],
+      ["amor-proprio", /amor|carinho|valor|merec|suficient|gentil/],
+      ["relacoes", /pessoas|alguem|outros|ama|conversa|companhia/],
+      ["liberdade", /liberdade|escolh|opiniao|espont|dizer-nao|agradar/],
+      ["presenca", /presen|agora|momento|silencio|atencao|observar/]
+    ];
+    const match = rules.find(([, pattern]) => pattern.test(text));
+    return match ? match[0] : ["identidade", "amor-proprio", "conquistas", "autocuidado", "sentimentos", "futuro", "crescimento", "presenca"][index % 8];
+  }
+
+  function buildQuestionBank() {
+    const combined = [];
+    Object.entries(questionCategories).forEach(([category, items]) => items.forEach(item => combined.push({ ...item, category })));
+    questions.forEach((item, index) => combined.push({ ...item, category: inferQuestionCategory(item, index) }));
+    extraQuestions.forEach((item, index) => combined.push({ ...item, category: inferQuestionCategory(item, index + questions.length) }));
+    const unique = new Map();
+    combined.forEach(item => {
+      const id = normalizeKey(item.question);
+      if (!unique.has(id)) unique.set(id, { ...item, id });
+    });
+    return [...unique.values()];
+  }
+
+  function buildReflectionBank() {
+    const combined = [
+      ...phrases.map(text => ({ type: "frase", text })),
+      ...poems.map(text => ({ type: "poema", text })),
+      ...reflections,
+      ...extraReflections
+    ];
+    const unique = new Map();
+    combined.forEach(item => {
+      const id = normalizeKey(item.text);
+      const type = item.type === "poema" ? "poema" : "frase";
+      if (!unique.has(id)) unique.set(id, { ...item, id, type });
+    });
+    return [...unique.values()];
+  }
+
+  const completeQuestionBank = buildQuestionBank();
+  const completeReflectionBank = buildReflectionBank();
+
+  function showScreen(id) {
+    screens.forEach(screen => screen.classList.remove("active"));
+    const next = $(id);
+    if (next) next.classList.add("active");
+    collectiveMural.hidden = id !== "homeScreen";
+    previousWish.hidden = id !== "homeScreen" || collectiveWords.length === 0;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  function runIntroSequence() {
+    [homeSignature, homeInvitation, startButton, homePrivacyNote, soundToggle].forEach(el => el.classList.remove("is-visible"));
+    previousWish.hidden = true;
+    later(() => homeInvitation.classList.add("is-visible"), 2000);
+    later(() => startButton.classList.add("is-visible"), 3500);
+    later(() => {
+      homeSignature.classList.add("is-visible");
+      homePrivacyNote.classList.add("is-visible");
+      soundToggle.classList.add("is-visible");
+      if (collectiveWords.length && Math.random() < .76) {
+        previousWish.textContent = `Alguém que passou por aqui antes desejou a você: ${collectiveWords.at(-1).toUpperCase()}.`;
+        previousWish.hidden = false;
+      }
+    }, 4400);
+  }
+
+  function renderMural() {
+    collectiveMural.innerHTML = "";
+    collectiveWords.slice(-32).forEach((word, index) => {
+      const span = document.createElement("span");
+      span.className = "mural-word";
+      span.textContent = word;
+      span.style.left = `${5 + ((index * 29 + 11) % 86)}%`;
+      span.style.top = `${6 + ((index * 37 + 17) % 84)}%`;
+      span.style.animationDelay = `${-(index % 12) * 1.7}s`;
+      collectiveMural.appendChild(span);
+    });
+  }
+
+  function renderMuralMode() {
+    muralModeWords.innerHTML = "";
+    const items = collectiveWords.length ? collectiveWords : ["A primeira palavra ainda pode chegar."];
+    items.forEach((word, index) => {
+      const span = document.createElement("span");
+      span.textContent = word;
+      span.style.left = `${4 + ((index * 31 + 9) % 78)}%`;
+      span.style.top = `${5 + ((index * 43 + 13) % 80)}%`;
+      muralModeWords.appendChild(span);
+    });
+  }
+
+  function generateQuestions() {
+    const selected = [], ids = new Set(), categories = new Set();
+    while (selected.length < 5) {
+      let available = completeQuestionBank.filter(item => !questionHistory.has(item.id) && !ids.has(item.id) && !previousSessionQuestionIds.has(item.id) && !categories.has(item.category));
+      if (!available.length) available = completeQuestionBank.filter(item => !questionHistory.has(item.id) && !ids.has(item.id) && !previousSessionQuestionIds.has(item.id));
+      if (!available.length && questionHistory.size >= completeQuestionBank.length) { questionHistory.clear(); continue; }
+      if (!available.length) available = completeQuestionBank.filter(item => !questionHistory.has(item.id) && !ids.has(item.id));
+      if (!available.length) break;
+      const chosen = randomItem(available);
+      selected.push(chosen); ids.add(chosen.id); categories.add(chosen.category); questionHistory.add(chosen.id);
+    }
+    currentQuestions = shuffle(selected);
+    previousSessionQuestionIds = new Set(ids);
+  }
+
+  function generateSessionInterludes() {
+    const breathingGap = randomItem([1, 2]);
+    const surprises = shuffle(["reflection", "art", "silent", "noanswer", "error", "touch", "signature"]);
+    sessionInterludes = Array(4).fill("reflection");
+    sessionInterludes[breathingGap] = "breathing";
+    const openGaps = [0, 1, 2, 3].filter(i => i !== breathingGap);
+    const surpriseCount = Math.random() < .58 ? 2 : 1;
+    shuffle(openGaps).slice(0, surpriseCount).forEach((gap, i) => sessionInterludes[gap] = surprises[i]);
+    useLastLook = Math.random() < .42;
+    useDelayedReflection = Math.random() < .46;
+  }
+
+  function renderQuestionText(text) {
+    questionText.classList.remove("question-fade");
+    questionText.textContent = text;
+    void questionText.offsetWidth;
+    questionText.classList.add("question-fade");
+  }
+
+  function updateStageText(element, text) {
+    element.classList.remove("stage-text-enter");
+    element.textContent = text;
+    void element.offsetWidth;
+    element.classList.add("stage-text-enter");
+  }
+
+  function showQuestion() {
+    interactionLocked = false;
+    showScreen("questionScreen");
+    const question = currentQuestions[currentQuestionIndex];
+    renderQuestionText(question.question);
+    progressLabel.textContent = `${currentQuestionIndex + 1} de 5`;
+    progressBar.style.width = `${((currentQuestionIndex + 1) / 5) * 100}%`;
+    answersContainer.innerHTML = "";
+    question.answers.forEach((answerText, index) => {
+      const button = document.createElement("button");
+      button.className = "answer";
+      button.textContent = answerText;
+      button.style.animationDelay = `${180 + index * 100}ms`;
+      button.addEventListener("click", handleAnswer);
+      answersContainer.appendChild(button);
+    });
+  }
+
+  function makeRipple(event) {
+    const ripple = document.createElement("span");
+    ripple.className = "touch-ripple";
+    ripple.style.left = `${event.clientX}px`;
+    ripple.style.top = `${event.clientY}px`;
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 1300);
+  }
+
+  function handleAnswer(event) {
+    if (interactionLocked) return;
+    interactionLocked = true;
+    playTone(523.25, .16, .018);
+    makeRipple(event);
+    answersContainer.querySelectorAll("button").forEach(button => button.disabled = true);
+    if (currentQuestionIndex >= 4) {
+      later(() => showScreen("beforeCameraScreen"), 650);
+    } else {
+      later(() => runInterlude(sessionInterludes[currentQuestionIndex]), 650);
+    }
+  }
+
+  function advanceQuestion(delay = 0) {
+    later(() => { currentQuestionIndex++; showQuestion(); }, delay);
+  }
+
+  function takeNextReflection() {
+    if (reflectionHistory.size >= completeReflectionBank.length) reflectionHistory.clear();
+    let available = completeReflectionBank.filter(item => !reflectionHistory.has(item.id) && item.type === nextReflectionType);
+    if (!available.length) available = completeReflectionBank.filter(item => !reflectionHistory.has(item.id));
+    if (!available.length) { reflectionHistory.clear(); available = completeReflectionBank; }
+    const chosen = randomItem(available);
+    reflectionHistory.add(chosen.id);
+    nextReflectionType = chosen.type === "frase" ? "poema" : "frase";
+    return chosen;
+  }
+
+  function showReflection() {
+    const chosen = takeNextReflection();
+    reflectionType.textContent = chosen.type === "poema" ? "Um instante" : "Um lembrete";
+    reflectionText.textContent = chosen.text;
+    showScreen("reflectionScreen");
+    advanceQuestion(Math.min(Math.max(6800, chosen.text.length * 68), 14000));
+  }
+
+  function runInterlude(type) {
+    if (type === "breathing") return showBreathing();
+    if (type === "art") return showArtPause();
+    if (type === "silent") return showSilentPause();
+    if (type === "noanswer") return showNoAnswer();
+    if (type === "error") return showPoeticError();
+    if (type === "touch") return showTouchHold();
+    if (type === "signature") return showSignature();
+    showReflection();
+  }
+
+  function showBreathing() {
+    updateStageText(breathingMessage, "Inspire.");
+    breathingCircle.style.animation = "none";
+    void breathingCircle.offsetWidth;
+    breathingCircle.style.animation = "breatheOnce 10.5s ease-in-out both";
+    showScreen("breathingScreen");
+    later(() => updateStageText(breathingMessage, "Expire."), 5200);
+    later(() => updateStageText(breathingMessage, "Continue."), 10400);
+    advanceQuestion(12200);
+  }
+
+  function showArtPause() {
+    animatedInterludeArt.innerHTML = artTemplates[randomItem(["eye", "continuous", "sprout", "imperfectCircle"])];
+    showScreen("artPauseScreen");
+    advanceQuestion(7200);
+  }
+
+  function showSilentPause() {
+    silentPauseMessage.textContent = "Apenas fique.";
+    showScreen("silentPauseScreen");
+    later(() => silentPauseMessage.textContent = "Agora, continue.", 10000);
+    advanceQuestion(12000);
+  }
+
+  function showNoAnswer() {
+    noAnswerQuestion.textContent = randomItem(noAnswerQuestions);
+    noAnswerReply.textContent = "";
+    showScreen("noAnswerScreen");
+    later(() => noAnswerReply.textContent = "Você não precisa responder para esta tela.", 5400);
+    advanceQuestion(10800);
+  }
+
+  function showPoeticError() {
+    showScreen("poeticErrorScreen");
+    advanceQuestion(7800);
+  }
+
+  function showTouchHold() {
+    holdCompleted = false;
+    holdMessage.textContent = "";
+    holdCircle.classList.remove("is-held", "is-complete");
+    showScreen("touchHoldScreen");
+  }
+
+  function beginHold(event) {
+    event.preventDefault();
+    if (holdCompleted) return;
+    holdCircle.setPointerCapture?.(event.pointerId);
+    holdCircle.classList.add("is-held");
+    holdMessage.textContent = "";
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(() => {
+      holdCompleted = true;
+      holdCircle.classList.remove("is-held");
+      holdCircle.classList.add("is-complete");
+      updateStageText(holdMessage, "Às vezes, permanecer também é uma escolha.");
+      playTone(392, .45, .014);
+      advanceQuestion(3200);
+    }, 3200);
+  }
+
+  function endHold() {
+    if (holdCompleted) return;
+    clearTimeout(holdTimer);
+    holdCircle.classList.remove("is-held");
+    updateStageText(holdMessage, "Fique só mais um pouco.");
+  }
+
+  function setupSignatureCanvas() {
+    const rect = signatureCanvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    signatureCanvas.width = Math.round(rect.width * dpr);
+    signatureCanvas.height = Math.round(rect.height * dpr);
+    const ctx = signatureCanvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineWidth = 1.35;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#5f5f5a";
+    signatureCanvas.classList.remove("is-vanishing");
+    signatureHasInk = false;
+    finishSignatureButton.hidden = true;
+    signatureHint.textContent = "Desenhe com o dedo.";
+  }
+
+  function signaturePoint(event) {
+    const rect = signatureCanvas.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  function showSignature() {
+    showScreen("signatureScreen");
+    requestAnimationFrame(setupSignatureCanvas);
+  }
+
+  signatureCanvas.addEventListener("pointerdown", event => {
+    event.preventDefault(); drawing = true; signatureCanvas.setPointerCapture?.(event.pointerId);
+    const p = signaturePoint(event), ctx = signatureCanvas.getContext("2d");
+    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  });
+  signatureCanvas.addEventListener("pointermove", event => {
+    if (!drawing) return;
+    event.preventDefault();
+    const p = signaturePoint(event), ctx = signatureCanvas.getContext("2d");
+    ctx.lineTo(p.x, p.y); ctx.stroke();
+    signatureHasInk = true; finishSignatureButton.hidden = false;
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(name => signatureCanvas.addEventListener(name, () => drawing = false));
+
+  finishSignatureButton.addEventListener("click", () => {
+    if (!signatureHasInk) return;
+    finishSignatureButton.hidden = true;
+    signatureHint.textContent = "Sua marca existiu aqui.";
+    signatureCanvas.classList.add("is-vanishing");
+    advanceQuestion(3400);
+  });
+
+  holdCircle.addEventListener("pointerdown", beginHold);
+  ["pointerup", "pointercancel", "pointerleave"].forEach(name => holdCircle.addEventListener(name, endHold));
+
+  startButton.addEventListener("click", async () => {
+    clearSession();
+    sessionCounted = false;
+    generateQuestions();
+    generateSessionInterludes();
+    currentQuestionIndex = 0;
+    if (soundEnabled) startAmbient();
+    try { await document.documentElement.requestFullscreen?.(); } catch (_) {}
+    showQuestion();
+  });
+
+  continueToPrivacy.addEventListener("click", () => showScreen("privacyScreen"));
+
+  openCameraButton.addEventListener("click", async () => {
+    cameraError.hidden = true;
+    cameraError.style.display = "none";
+    cameraError.textContent = "";
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false });
+      video.srcObject = stream;
+      await video.play();
+      showScreen("cameraPreludeScreen");
+      cameraPreludeMessage.textContent = "";
+      later(() => cameraPreludeMessage.textContent = "Agora não responda nada.", 900);
+      later(() => cameraPreludeMessage.textContent = "Olhe.", 3200);
+      later(showCameraMoment, 5000);
+    } catch (error) {
+      cameraError.hidden = false;
+      cameraError.style.display = "block";
+      cameraError.textContent = "Não foi possível acessar a câmera. Verifique a permissão e tente novamente.";
+    }
+  });
+
+  function showCameraMoment() {
+    captureButton.hidden = true;
+    captureButton.classList.remove("just-revealed");
+    cameraScreen.classList.remove("camera-color-return");
+    showScreen("cameraScreen");
+    requestAnimationFrame(() => requestAnimationFrame(() => cameraScreen.classList.add("camera-color-return")));
+    startCameraMessages();
+    if (useDelayedReflection) startDelayedReflection();
+    const revealAt = useDelayedReflection ? 11200 : 8200;
+    later(() => {
+      captureButton.hidden = false;
+      captureButton.classList.add("just-revealed");
+    }, revealAt);
+  }
+
+  function startCameraMessages() {
+    clearInterval(cameraMessageInterval);
+    const messages = ["Sem filtro.", "Sem melhor ângulo.", "Sem precisar agradar ninguém.", "Respire.", "Fique.", "Apenas você."];
+    let index = 0;
+    cameraMessage.textContent = messages[0];
+    cameraMessageInterval = setInterval(() => {
+      index++;
+      if (index >= messages.length) return clearInterval(cameraMessageInterval);
+      cameraMessage.textContent = messages[index];
+    }, 2200);
+  }
+
+  function startDelayedReflection() {
+    const frames = [];
+    const width = 360, height = 480;
+    delayedMirrorCanvas.width = width; delayedMirrorCanvas.height = height;
+    delayedMirrorCanvas.classList.add("is-active");
+    delayedInterval = setInterval(() => {
+      if (!video.videoWidth) return;
+      const frame = document.createElement("canvas");
+      frame.width = width; frame.height = height;
+      const ctx = frame.getContext("2d");
+      ctx.translate(width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, width, height);
+      frames.push(frame);
+      if (frames.length > 8) {
+        const delayed = frames.shift();
+        delayedMirrorCanvas.getContext("2d").drawImage(delayed, 0, 0);
+      }
+    }, 210);
+    later(() => {
+      clearInterval(cameraMessageInterval);
+      cameraMessageInterval = null;
+      cameraMessage.textContent = "Você está sempre tentando acompanhar quem está se tornando?";
+    }, 5200);
+    later(() => {
+      clearInterval(delayedInterval); delayedInterval = null;
+      delayedMirrorCanvas.classList.remove("is-active");
+      cameraMessage.textContent = "Agora, apenas você.";
+    }, 8600);
+  }
+
+  captureButton.addEventListener("click", capturePhoto);
+
+  function capturePhoto() {
+    if (!video.videoWidth || !video.videoHeight) return;
+    captureButton.disabled = true;
+    clearInterval(cameraMessageInterval);
+    clearInterval(delayedInterval);
+    const targetWidth = Math.min(540, video.videoWidth);
+    const targetHeight = Math.round(targetWidth * video.videoHeight / video.videoWidth);
+    photoCanvas.width = targetWidth; photoCanvas.height = targetHeight;
+    const ctx = photoCanvas.getContext("2d");
+    ctx.save(); ctx.translate(targetWidth, 0); ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, targetWidth, targetHeight); ctx.restore();
+    finalPhotoCanvas.width = targetWidth; finalPhotoCanvas.height = targetHeight;
+    finalPhotoCanvas.getContext("2d").drawImage(photoCanvas, 0, 0);
+    finalPhotoCanvas.style.display = "block";
+    stopCamera();
+    showScreen("photoScreen");
+    startPhotoSequence();
+  }
+
+  function startPhotoSequence() {
+    photoScreen.classList.remove("photo-erasing");
+    photoCaption.textContent = "";
+    later(() => photoCaption.textContent = "Olhe um pouco mais.", 3000);
+    later(() => photoCaption.textContent = "Você talvez conheça todos os defeitos dessa pessoa.", 6500);
+    later(() => photoCaption.textContent = "Mas conhece tudo o que ela precisou superar?", 10100);
+    later(() => photoCaption.textContent = "Essa pessoa é você.", 13700);
+    later(() => photoCaption.textContent = "O que fica quando a imagem vai embora?", 17400);
+    later(() => {
+      photoScreen.classList.add("photo-erasing");
+      photoCaption.textContent = "Esta imagem vai desaparecer.";
+    }, 21600);
+    later(() => photoCaption.textContent = "Você não.", 24400);
+    later(() => { clearPhoto(); showFinalWord(); }, 27000);
+  }
+
+  function showFinalWord() {
+    currentFinalWord = randomItem(finalWords);
+    finalWord.textContent = `${currentFinalWord}.`;
+    showScreen("finalScreen");
+    later(showWordLeave, 5200);
+  }
+
+  function showWordLeave() {
+    interactionLocked = false;
+    wordOptions.innerHTML = "";
+    communalChoices.forEach(word => {
+      const button = document.createElement("button");
+      button.type = "button"; button.className = "word-option"; button.textContent = word;
+      button.addEventListener("click", () => leaveWord(word));
+      wordOptions.appendChild(button);
+    });
+    customWord.value = "";
+    showScreen("wordLeaveScreen");
+  }
+
+  function sanitizeSingleWord(value) {
+    return value.trim().split(/\s+/)[0].replace(/[^\p{L}\p{M}-]/gu, "").slice(0, 22).toLowerCase();
+  }
+
+  function leaveWord(word) {
+    if (interactionLocked) return;
+    const clean = sanitizeSingleWord(word);
+    if (!clean) return;
+    interactionLocked = true;
+    collectiveWords.push(clean);
+    renderMural();
+    playTone(440, .3, .016);
+    later(showSecret, 650);
+  }
+
+  wordForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const clean = sanitizeSingleWord(customWord.value);
+    if (!clean) { customWord.focus(); return; }
+    leaveWord(clean);
+  });
+
+  function showSecret() {
+    interactionLocked = false;
+    secretCircle.classList.remove("is-open");
+    secretCircle.hidden = false;
+    secretTitle.hidden = false;
+    secretInstruction.hidden = false;
+    secretContent.hidden = true;
+    secretPhrase.textContent = randomItem(secretMessages);
+    showScreen("secretScreen");
+  }
+
+  secretCircle.addEventListener("click", () => {
+    secretCircle.classList.add("is-open");
+    later(() => {
+      secretCircle.hidden = true;
+      secretTitle.hidden = true;
+      secretInstruction.hidden = true;
+      secretContent.hidden = false;
+      const qrDestination = buildTakeawayDestination(
+        secretPhrase.textContent,
+        currentFinalWord
+      );
+      drawReliableQr(qrDestination);
+      playTone(659.25, .42, .012);
+    }, 700);
+  });
+
+  function escapeHtml(value) {
+    return value.replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
+  function buildTakeawayDestination(message, word) {
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      const page = new URL("mensagem.html", location.href);
+      page.hash = new URLSearchParams({ mensagem: message, palavra: word }).toString();
+      return page.href;
+    }
+
+    const safeMessage = escapeHtml(message);
+    const safeWord = escapeHtml(word);
+    const embeddedPage = `<meta name="viewport" content="width=device-width"><body style="margin:0;height:100vh;display:grid;place-items:center;background:white;color:#292927"><main style="padding:30px;text-align:center;font:32px Georgia;line-height:1.35">${safeMessage}<small style="display:block;margin-top:35px;font:12px Arial;letter-spacing:4px;color:#777">${safeWord}</small></main>`;
+    const bytes = new TextEncoder().encode(embeddedPage);
+    let binary = "";
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    return `data:text/html;charset=utf-8;base64,${btoa(binary)}`;
+  }
+
+  function drawReliableQr(text) {
+    const qr = qrcode(0, "L");
+    qr.addData(text, "Byte");
+    qr.make();
+
+    const modules = qr.getModuleCount();
+    const quietZone = 4;
+    const scale = Math.max(5, Math.floor(280 / (modules + quietZone * 2)));
+    const size = (modules + quietZone * 2) * scale;
+    const context = qrCanvas.getContext("2d");
+
+    qrCanvas.width = size;
+    qrCanvas.height = size;
+    context.imageSmoothingEnabled = false;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, size, size);
+    context.fillStyle = "#242422";
+
+    for (let row = 0; row < modules; row++) {
+      for (let column = 0; column < modules; column++) {
+        if (qr.isDark(row, column)) {
+          context.fillRect(
+            (column + quietZone) * scale,
+            (row + quietZone) * scale,
+            scale,
+            scale
+          );
+        }
+      }
+    }
+  }
+
+  continueAfterSecret.addEventListener("click", () => {
+    if (useLastLook) startLastLook(); else showTimeMessage();
+  });
+
+  async function startLastLook() {
+    showScreen("cameraPreludeScreen");
+    cameraPreludeMessage.textContent = "Só mais uma coisa.";
+    try {
+      lastLookStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+      lastLookVideo.srcObject = lastLookStream;
+      await lastLookVideo.play();
+      later(() => {
+        lastLookMessage.textContent = "";
+        showScreen("lastLookScreen");
+        later(() => lastLookMessage.textContent = "Desta vez, não precisamos guardar.", 3500);
+        later(() => { stopLastLook(); showTimeMessage(); }, 7800);
+      }, 2200);
+    } catch (_) { showTimeMessage(); }
+  }
+
+  function showTimeMessage() {
+    showScreen("timeMessageScreen");
+    later(finishExperience, 6500);
+  }
+
+  function finishExperience() {
+    countCompletedSession();
+    clearPhoto(); stopCamera(); stopLastLook();
+    goodbyeArt.innerHTML = artTemplates.continuous;
+    showScreen("goodbyeScreen");
+    later(resetToHome, 6200);
+  }
+
+  function resetToHome() {
+    clearSession();
+    showScreen("homeScreen");
+    renderMural();
+    runIntroSequence();
+  }
+
+  function stopCamera() {
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    stream = null; video.srcObject = null;
+    clearInterval(cameraMessageInterval); clearInterval(delayedInterval);
+    cameraMessageInterval = delayedInterval = null;
+    delayedMirrorCanvas.classList.remove("is-active");
+  }
+
+  function stopLastLook() {
+    if (lastLookStream) lastLookStream.getTracks().forEach(track => track.stop());
+    lastLookStream = null; lastLookVideo.srcObject = null;
+  }
+
+  function clearPhoto() {
+    cancelAnimationFrame(photoAnimationFrame);
+    photoAnimationFrame = null;
+    [photoCanvas, finalPhotoCanvas].forEach(canvas => {
+      if (canvas.width && canvas.height) canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
+      canvas.width = 0; canvas.height = 0;
+    });
+    finalPhotoCanvas.style.display = "none";
+    photoScreen.classList.remove("photo-erasing");
+  }
+
+  function clearSession() {
+    clearTimers(); stopCamera(); stopLastLook(); clearPhoto();
+    currentQuestions = []; sessionInterludes = []; currentQuestionIndex = 0;
+    interactionLocked = false; holdCompleted = false; captureButton.disabled = false; captureButton.hidden = true;
+    answersContainer.innerHTML = ""; questionText.textContent = ""; progressBar.style.width = "0%";
+    photoCaption.textContent = ""; cameraMessage.textContent = ""; cameraScreen.classList.remove("camera-color-return");
+    cameraError.style.display = "none"; cameraError.textContent = "";
+  }
+
+  function getParticipantCount() {
+    try { const value = Number(localStorage.getItem(PARTICIPANT_COUNT_KEY)); return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0; }
+    catch (_) { return 0; }
+  }
+  function updateParticipantCounters(count = getParticipantCount()) { adminParticipantCount.textContent = String(count); }
+  function countCompletedSession() {
+    if (sessionCounted) return;
+    sessionCounted = true;
+    const next = getParticipantCount() + 1;
+    try { localStorage.setItem(PARTICIPANT_COUNT_KEY, String(next)); } catch (_) {}
+    updateParticipantCounters(next);
+  }
+
+  function ensureAudio() {
+    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioContext.resume?.();
+    return audioContext;
+  }
+  function playTone(frequency, duration, volume) {
+    if (!soundEnabled) return;
+    const audio = ensureAudio(), osc = audio.createOscillator(), gain = audio.createGain(), now = audio.currentTime;
+    osc.type = "sine"; osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(.0001, now); gain.gain.exponentialRampToValueAtTime(volume, now + .045); gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+    osc.connect(gain).connect(audio.destination); osc.start(now); osc.stop(now + duration + .03);
+  }
+  function startAmbient() {
+    stopAmbient();
+
+    const audio = ensureAudio();
+    const now = audio.currentTime;
+    const master = audio.createGain();
+    const filter = audio.createBiquadFilter();
+    const lfo = audio.createOscillator();
+    const lfoDepth = audio.createGain();
+
+    filter.type = "lowpass";
+    filter.frequency.value = 720;
+    filter.Q.value = .55;
+    master.gain.setValueAtTime(.0001, now);
+    master.gain.exponentialRampToValueAtTime(.042, now + 3.2);
+    filter.connect(master).connect(audio.destination);
+
+    const voices = [
+      { frequency: 65.41, type: "sine", level: .46 },
+      { frequency: 98, type: "sine", level: .28 },
+      { frequency: 196, type: "triangle", level: .07 }
+    ].map(voice => {
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      oscillator.type = voice.type;
+      oscillator.frequency.value = voice.frequency;
+      gain.gain.value = voice.level;
+      oscillator.connect(gain).connect(filter);
+      oscillator.start();
+      return { oscillator, gain };
+    });
+
+    lfo.type = "sine";
+    lfo.frequency.value = .065;
+    lfoDepth.gain.value = .007;
+    lfo.connect(lfoDepth).connect(master.gain);
+    lfo.start();
+
+    ambientNodes = [{ master, filter, lfo, lfoDepth }, ...voices];
+
+    const notes = [220, 293.66, 246.94, 329.63];
+    let index = 0;
+    ambientInterval = setInterval(() => {
+      playTone(notes[index++ % notes.length], 3.2, .012);
+    }, 11800);
+  }
+
+  function stopAmbient() {
+    clearInterval(ambientInterval);
+    ambientInterval = null;
+
+    ambientNodes.forEach(node => {
+      try { node.oscillator?.stop(); } catch (_) {}
+      try { node.lfo?.stop(); } catch (_) {}
+      try { node.oscillator?.disconnect(); } catch (_) {}
+      try { node.gain?.disconnect(); } catch (_) {}
+      try { node.lfo?.disconnect(); } catch (_) {}
+      try { node.lfoDepth?.disconnect(); } catch (_) {}
+      try { node.filter?.disconnect(); } catch (_) {}
+      try { node.master?.disconnect(); } catch (_) {}
+    });
+    ambientNodes = [];
+  }
+  soundToggle.addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    soundToggle.textContent = `Som: ${soundEnabled ? "ligado" : "desligado"}`;
+    soundToggle.setAttribute("aria-pressed", String(soundEnabled));
+    if (soundEnabled) { ensureAudio(); startAmbient(); } else stopAmbient();
+  });
+
+  adminHotspot.addEventListener("click", () => {
+    adminTapCount++; clearTimeout(adminTapTimer);
+    adminTapTimer = setTimeout(() => adminTapCount = 0, 3500);
+    if (adminTapCount >= 5) { adminTapCount = 0; updateParticipantCounters(); adminPanel.hidden = false; adminCloseButton.focus(); }
+  });
+  adminCloseButton.addEventListener("click", () => adminPanel.hidden = true);
+  adminPanel.addEventListener("click", event => { if (event.target === adminPanel) adminPanel.hidden = true; });
+  adminMuralButton.addEventListener("click", () => { renderMuralMode(); adminPanel.hidden = true; muralMode.hidden = false; });
+  muralCloseButton.addEventListener("click", () => muralMode.hidden = true);
+  adminResetButton.addEventListener("click", () => {
+    if (adminResetButton.dataset.confirm !== "true") {
+      adminResetButton.dataset.confirm = "true"; adminResetButton.textContent = "Toque novamente para confirmar";
+      clearTimeout(resetConfirmationTimer); resetConfirmationTimer = setTimeout(() => { adminResetButton.dataset.confirm = "false"; adminResetButton.textContent = "Zerar contador"; }, 3500); return;
+    }
+    try { localStorage.removeItem(PARTICIPANT_COUNT_KEY); } catch (_) {}
+    adminResetButton.dataset.confirm = "false"; adminResetButton.textContent = "Zerar contador"; updateParticipantCounters(0);
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") { adminPanel.hidden = true; muralMode.hidden = true; }
+  });
+  window.addEventListener("beforeunload", () => { stopCamera(); stopLastLook(); clearPhoto(); });
+
+  homeSignature.innerHTML = artTemplates.faceCircle;
+  beforeCameraArt.innerHTML = artTemplates.reflection;
+  goodbyeArt.innerHTML = artTemplates.continuous;
+  updateParticipantCounters();
+  renderMural();
+  runIntroSequence();
+})();
+</script>
+
+</body>
+</html>
