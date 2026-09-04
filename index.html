@@ -5788,14 +5788,28 @@ tente enxergar além da imagem.`
   holdCircle.addEventListener("pointerdown", beginHold);
   ["pointerup", "pointercancel", "pointerleave"].forEach(name => holdCircle.addEventListener(name, endHold));
 
-  startButton.addEventListener("click", async () => {
+  function requestLandscapeFullscreen() {
+    try {
+      const fullscreenRequest = document.fullscreenElement
+        ? Promise.resolve()
+        : document.documentElement.requestFullscreen?.();
+
+      Promise.resolve(fullscreenRequest)
+        .then(() => screen.orientation?.lock?.("landscape"))
+        .catch(() => {});
+    } catch (_) {
+      /* O início nunca depende da resposta do modo de tela. */
+    }
+  }
+
+  startButton.addEventListener("click", () => {
     clearSession();
     sessionCounted = false;
     generateQuestions();
     generateSessionInterludes();
     currentQuestionIndex = 0;
     if (soundEnabled) startAmbient();
-    await enterLandscapeFullscreen();
+    requestLandscapeFullscreen();
     showQuestion();
   });
 
