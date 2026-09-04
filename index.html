@@ -1044,8 +1044,8 @@
       animation: muralDrift 28s ease-in-out infinite alternate;
     }
     @keyframes muralDrift {
-      from { transform: translate3d(-4px, 2px, 0); }
-      to { transform: translate3d(7px, -5px, 0); }
+      from { transform: translate3d(calc(-50% - 4px), calc(-50% + 2px), 0); }
+      to { transform: translate3d(calc(-50% + 7px), calc(-50% - 5px), 0); }
     }
     .previous-wish {
       position: fixed;
@@ -5446,7 +5446,7 @@ tente enxergar além da imagem.`
   const collectiveWords = (() => {
     try {
       const saved = JSON.parse(sessionStorage.getItem(COLLECTIVE_WORDS_KEY) || "[]");
-      return Array.isArray(saved) ? saved.filter(word => typeof word === "string").slice(-32) : [];
+      return Array.isArray(saved) ? saved.filter(word => typeof word === "string") : [];
     } catch (_) {
       return [];
     }
@@ -5550,13 +5550,29 @@ tente enxergar além da imagem.`
 
   function renderMural() {
     collectiveMural.innerHTML = "";
-    collectiveWords.slice(-32).forEach((word, index) => {
+    if (!collectiveWords.length) return;
+
+    const total = collectiveWords.length;
+    const columns = Math.max(4, Math.ceil(Math.sqrt(total * 1.65)));
+    const rows = Math.max(3, Math.ceil(total / columns));
+    const cellWidth = 100 / columns;
+    const cellHeight = 100 / rows;
+    const openSlots = shuffle(Array.from({ length: columns * rows }, (_, index) => index));
+
+    collectiveWords.forEach((word, index) => {
+      const slot = openSlots[index];
+      const column = slot % columns;
+      const row = Math.floor(slot / columns);
+      const horizontalJitter = (Math.random() - .5) * Math.min(3.4, cellWidth * .22);
+      const verticalJitter = (Math.random() - .5) * Math.min(3.2, cellHeight * .18);
       const span = document.createElement("span");
       span.className = "mural-word";
       span.textContent = word;
-      span.style.left = `${5 + ((index * 29 + 11) % 86)}%`;
-      span.style.top = `${6 + ((index * 37 + 17) % 84)}%`;
-      span.style.animationDelay = `${-(index % 12) * 1.7}s`;
+      span.style.left = `${(column + .5) * cellWidth + horizontalJitter}%`;
+      span.style.top = `${(row + .5) * cellHeight + verticalJitter}%`;
+      span.style.fontSize = `clamp(.68rem, ${Math.max(.82, 1.35 - total * .008)}vw, 1rem)`;
+      span.style.animationDelay = `${-(Math.random() * 24).toFixed(1)}s`;
+      span.style.animationDuration = `${(25 + Math.random() * 11).toFixed(1)}s`;
       collectiveMural.appendChild(span);
     });
   }
@@ -5999,7 +6015,6 @@ tente enxergar além da imagem.`
     if (!clean) return;
     interactionLocked = true;
     collectiveWords.push(clean);
-    if (collectiveWords.length > 32) collectiveWords.shift();
     try { sessionStorage.setItem(COLLECTIVE_WORDS_KEY, JSON.stringify(collectiveWords)); } catch (_) {}
     renderMural();
     playTone(440, .3, .016);
