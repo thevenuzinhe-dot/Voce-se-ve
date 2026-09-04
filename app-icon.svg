@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Você se vê?">
+  <rect width="512" height="512" rx="112" fill="#fafaf8"/>
+  <path d="M104 258c42-70 92-105 152-105s110 35 152 105c-42 67-92 101-152 101s-110-34-152-101Z" fill="none" stroke="#292927" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="47" fill="#292927"/>
+  <path d="M383 137c24 25 39 54 47 86" fill="none" stroke="#8b879d" stroke-width="12" stroke-linecap="round"/>
+</svg>

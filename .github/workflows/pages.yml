@@ -1,0 +1,40 @@
+name: Publicar páginas da experiência
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+      - name: Preparar GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Preparar arquivos públicos
+        run: |
+          mkdir public-site
+          cp index.html mensagem.html download.html qrcode.js qrcode_UTF8.js manifest.webmanifest service-worker.js app-icon.svg public-site/
+      - name: Enviar páginas
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public-site
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4

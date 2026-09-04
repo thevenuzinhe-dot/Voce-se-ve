@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Você se vê?",
+  "short_name": "Você se vê?",
+  "description": "Uma experiência de pausa, presença e autorreflexão.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fafaf8",
+  "theme_color": "#fafaf8",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

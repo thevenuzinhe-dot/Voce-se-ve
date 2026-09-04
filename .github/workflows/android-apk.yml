@@ -1,0 +1,58 @@
+name: Gerar aplicativo Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Preparar Android
+        uses: android-actions/setup-android@v3
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Gerar APK instalável
+        run: gradle :app:assembleDebug
+
+      - name: Nomear aplicativo
+        run: cp app/build/outputs/apk/debug/app-debug.apk Voce-se-ve.apk
+
+      - name: Guardar APK na execução
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voce-se-ve-Android
+          path: Voce-se-ve.apk
+
+      - name: Publicar para download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v1.0.${{ github.run_number }}
+          name: Você se vê? — Android
+          body: |
+            Aplicativo Android instalável da experiência “Você se vê?”.
+
+            Baixe o arquivo **Voce-se-ve.apk** abaixo e abra-o no Android para instalar.
+          files: Voce-se-ve.apk
+          make_latest: true
