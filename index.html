@@ -768,8 +768,8 @@
       z-index: 50;
       left: 0;
       top: 0;
-      width: 48px;
-      height: 48px;
+      width: 64px;
+      height: 64px;
       padding: 0;
       opacity: 0;
       background: transparent;
@@ -1039,7 +1039,7 @@
       font-family: Georgia, "Times New Roman", serif;
       font-size: clamp(.72rem, 1.4vw, .95rem);
       letter-spacing: .08em;
-      opacity: .085;
+      opacity: .14;
       white-space: nowrap;
       animation: muralDrift 28s ease-in-out infinite alternate;
     }
@@ -1139,6 +1139,8 @@
     #cameraVideo, .delayed-mirror { filter: grayscale(1); transition: filter 8s linear; }
     #cameraScreen.camera-color-return #cameraVideo,
     #cameraScreen.camera-color-return .delayed-mirror { filter: grayscale(0); }
+    html.android-app #cameraVideo,
+    html.android-app .delayed-mirror { filter: none; transition: none; }
     .delayed-mirror { display: none; z-index: 2; background: #eee; }
     .delayed-mirror.is-active { display: block; }
     #cameraScreen .camera-overlay { z-index: 3; }
@@ -1321,11 +1323,11 @@
     }
 
     /* Leitura ampliada para a instalação em tablet. */
-    html { font-size: 17px; }
-    .eyebrow, .reflection-type { font-size: .82rem; }
+    html { font-size: 18px; }
+    .eyebrow, .reflection-type { font-size: .84rem; }
     .progress-top, .small-note, .previous-wish,
     .art-pause-message, #signatureHint, .word-form label,
-    .secret-instruction, .secret-content small { font-size: .88rem; }
+    .secret-instruction, .secret-content small { font-size: .9rem; }
   </style>
 </head>
 
@@ -5318,6 +5320,9 @@ tente enxergar além da imagem.`
 (() => {
   "use strict";
 
+  const IS_ANDROID_APP = location.hostname === "appassets.androidplatform.net";
+  document.documentElement.classList.toggle("android-app", IS_ANDROID_APP);
+
   const $ = id => document.getElementById(id);
   const screens = document.querySelectorAll(".screen");
   const startButton = $("startButton");
@@ -5407,6 +5412,7 @@ tente enxergar além da imagem.`
     "Leve consigo aquilo que fez você permanecer."
   ];
   const PARTICIPANT_COUNT_KEY = "voce-se-ve-participacoes";
+  const COLLECTIVE_WORDS_KEY = "voce-se-ve-palavras-da-sessao";
 
   let currentQuestions = [];
   let currentQuestionIndex = 0;
@@ -5437,7 +5443,14 @@ tente enxergar além da imagem.`
   let previousSessionQuestionIds = new Set();
   const reflectionHistory = new Set();
   let nextReflectionType = "frase";
-  const collectiveWords = [];
+  const collectiveWords = (() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(COLLECTIVE_WORDS_KEY) || "[]");
+      return Array.isArray(saved) ? saved.filter(word => typeof word === "string").slice(-32) : [];
+    } catch (_) {
+      return [];
+    }
+  })();
 
   const randomItem = array => array[Math.floor(Math.random() * array.length)];
   const shuffle = array => {
@@ -5528,7 +5541,7 @@ tente enxergar além da imagem.`
       homeSignature.classList.add("is-visible");
       homePrivacyNote.classList.add("is-visible");
       soundToggle.classList.add("is-visible");
-      if (collectiveWords.length && Math.random() < .76) {
+      if (collectiveWords.length) {
         previousWish.textContent = `Alguém que passou por aqui antes desejou a você: ${collectiveWords.at(-1).toUpperCase()}.`;
         previousWish.hidden = false;
       }
@@ -5796,6 +5809,8 @@ tente enxergar além da imagem.`
   ["pointerup", "pointercancel", "pointerleave"].forEach(name => holdCircle.addEventListener(name, endHold));
 
   function requestLandscapeFullscreen() {
+    if (IS_ANDROID_APP) return;
+
     try {
       const fullscreenRequest = document.fullscreenElement
         ? Promise.resolve()
@@ -5827,7 +5842,15 @@ tente enxergar além da imagem.`
     cameraError.style.display = "none";
     cameraError.textContent = "";
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false });
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 720 },
+          height: { ideal: 960 },
+          frameRate: { ideal: 24, max: 30 }
+        },
+        audio: false
+      });
       video.srcObject = stream;
       await video.play();
       showScreen("cameraPreludeScreen");
@@ -5870,22 +5893,33 @@ tente enxergar além da imagem.`
   }
 
   function startDelayedReflection() {
-    const frames = [];
-    const width = 360, height = 480;
+    const width = 240, height = 320, bufferSize = 7;
+    const frames = Array.from({ length: bufferSize }, () => {
+      const frame = document.createElement("canvas");
+      frame.width = width;
+      frame.height = height;
+      return frame;
+    });
+    const output = delayedMirrorCanvas.getContext("2d", { alpha: false });
+    let cursor = 0;
+    let capturedFrames = 0;
     delayedMirrorCanvas.width = width; delayedMirrorCanvas.height = height;
-    delayedMirrorCanvas.classList.add("is-active");
     delayedInterval = setInterval(() => {
       if (!video.videoWidth) return;
-      const frame = document.createElement("canvas");
-      frame.width = width; frame.height = height;
-      const ctx = frame.getContext("2d");
-      ctx.translate(width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, width, height);
-      frames.push(frame);
-      if (frames.length > 8) {
-        const delayed = frames.shift();
-        delayedMirrorCanvas.getContext("2d").drawImage(delayed, 0, 0);
+      const frame = frames[cursor];
+      const ctx = frame.getContext("2d", { alpha: false });
+
+      if (capturedFrames >= bufferSize) {
+        output.drawImage(frame, 0, 0, width, height);
+        delayedMirrorCanvas.classList.add("is-active");
       }
-    }, 210);
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      ctx.translate(width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, width, height);
+      cursor = (cursor + 1) % bufferSize;
+      capturedFrames++;
+    }, 250);
     later(() => {
       clearInterval(cameraMessageInterval);
       cameraMessageInterval = null;
@@ -5905,7 +5939,7 @@ tente enxergar além da imagem.`
     captureButton.disabled = true;
     clearInterval(cameraMessageInterval);
     clearInterval(delayedInterval);
-    const targetWidth = Math.min(540, video.videoWidth);
+    const targetWidth = Math.min(480, video.videoWidth);
     const targetHeight = Math.round(targetWidth * video.videoHeight / video.videoWidth);
     photoCanvas.width = targetWidth; photoCanvas.height = targetHeight;
     const ctx = photoCanvas.getContext("2d");
@@ -5965,6 +5999,8 @@ tente enxergar além da imagem.`
     if (!clean) return;
     interactionLocked = true;
     collectiveWords.push(clean);
+    if (collectiveWords.length > 32) collectiveWords.shift();
+    try { sessionStorage.setItem(COLLECTIVE_WORDS_KEY, JSON.stringify(collectiveWords)); } catch (_) {}
     renderMural();
     playTone(440, .3, .016);
     later(showSecret, 650);
