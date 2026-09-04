@@ -4511,6 +4511,24 @@ tente enxergar além da imagem.`
      INÍCIO
   ========================================================== */
 
+  async function enterLandscapeFullscreen() {
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      /* A experiência continua caso o navegador não permita tela cheia. */
+    }
+
+    try {
+      if (screen.orientation?.lock) {
+        await screen.orientation.lock("landscape");
+      }
+    } catch (error) {
+      /* Em navegadores sem bloqueio, a orientação física do tablet é respeitada. */
+    }
+  }
+
   startButton.addEventListener(
     "click",
     async () => {
@@ -4523,21 +4541,7 @@ tente enxergar além da imagem.`
 
       currentQuestionIndex = 0;
 
-      /* tenta deixar em tela cheia */
-      try {
-
-        if (
-          document.documentElement.requestFullscreen
-        ) {
-
-          await document.documentElement
-            .requestFullscreen();
-
-        }
-
-      } catch (error) {
-        /* Se não puder usar fullscreen, continua normalmente. */
-      }
+      await enterLandscapeFullscreen();
 
       showQuestion();
 
@@ -5791,7 +5795,7 @@ tente enxergar além da imagem.`
     generateSessionInterludes();
     currentQuestionIndex = 0;
     if (soundEnabled) startAmbient();
-    try { await document.documentElement.requestFullscreen?.(); } catch (_) {}
+    await enterLandscapeFullscreen();
     showQuestion();
   });
 
@@ -6138,8 +6142,9 @@ tente enxergar além da imagem.`
   function playTone(frequency, duration, volume) {
     if (!soundEnabled) return;
     const audio = ensureAudio(), osc = audio.createOscillator(), gain = audio.createGain(), now = audio.currentTime;
+    const audibleVolume = Math.min(volume * 1.8, .075);
     osc.type = "sine"; osc.frequency.value = frequency;
-    gain.gain.setValueAtTime(.0001, now); gain.gain.exponentialRampToValueAtTime(volume, now + .045); gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+    gain.gain.setValueAtTime(.0001, now); gain.gain.exponentialRampToValueAtTime(audibleVolume, now + .045); gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
     osc.connect(gain).connect(audio.destination); osc.start(now); osc.stop(now + duration + .03);
   }
   function startAmbient() {
@@ -6153,16 +6158,16 @@ tente enxergar além da imagem.`
     const lfoDepth = audio.createGain();
 
     filter.type = "lowpass";
-    filter.frequency.value = 720;
+    filter.frequency.value = 1100;
     filter.Q.value = .55;
     master.gain.setValueAtTime(.0001, now);
-    master.gain.exponentialRampToValueAtTime(.042, now + 3.2);
+    master.gain.exponentialRampToValueAtTime(.11, now + 3.2);
     filter.connect(master).connect(audio.destination);
 
     const voices = [
-      { frequency: 65.41, type: "sine", level: .46 },
-      { frequency: 98, type: "sine", level: .28 },
-      { frequency: 196, type: "triangle", level: .07 }
+      { frequency: 110, type: "sine", level: .52 },
+      { frequency: 164.81, type: "sine", level: .3 },
+      { frequency: 220, type: "triangle", level: .08 }
     ].map(voice => {
       const oscillator = audio.createOscillator();
       const gain = audio.createGain();
@@ -6176,7 +6181,7 @@ tente enxergar além da imagem.`
 
     lfo.type = "sine";
     lfo.frequency.value = .065;
-    lfoDepth.gain.value = .007;
+    lfoDepth.gain.value = .012;
     lfo.connect(lfoDepth).connect(master.gain);
     lfo.start();
 
@@ -6185,7 +6190,7 @@ tente enxergar além da imagem.`
     const notes = [220, 293.66, 246.94, 329.63];
     let index = 0;
     ambientInterval = setInterval(() => {
-      playTone(notes[index++ % notes.length], 3.2, .012);
+      playTone(notes[index++ % notes.length], 3.2, .018);
     }, 11800);
   }
 
