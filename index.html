@@ -6233,7 +6233,7 @@ tente enxergar além da imagem.`
     filter.frequency.value = 1100;
     filter.Q.value = .55;
     master.gain.setValueAtTime(.0001, now);
-    master.gain.exponentialRampToValueAtTime(.11, now + 3.2);
+    master.gain.exponentialRampToValueAtTime(1, now + 3.2);
     filter.connect(master).connect(audio.destination);
 
     const voices = [

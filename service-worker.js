@@ -1,4 +1,4 @@
-const CACHE_NAME = "voce-se-ve-v6";
+const CACHE_NAME = "voce-se-ve-v7";
 const APP_FILES = [
   "./",
   "./index.html",
