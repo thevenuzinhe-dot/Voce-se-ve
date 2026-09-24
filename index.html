@@ -6226,15 +6226,24 @@ tente enxergar além da imagem.`
     const now = audio.currentTime;
     const master = audio.createGain();
     const filter = audio.createBiquadFilter();
+    const compressor = audio.createDynamicsCompressor();
     const lfo = audio.createOscillator();
     const lfoDepth = audio.createGain();
 
     filter.type = "lowpass";
     filter.frequency.value = 1100;
     filter.Q.value = .55;
+
+    compressor.threshold.value = -18;
+    compressor.knee.value = 12;
+    compressor.ratio.value = 8;
+    compressor.attack.value = .003;
+    compressor.release.value = .2;
+
     master.gain.setValueAtTime(.0001, now);
-    master.gain.exponentialRampToValueAtTime(1, now + 3.2);
-    filter.connect(master).connect(audio.destination);
+    master.gain.exponentialRampToValueAtTime(2.6, now + 2.2);
+    filter.connect(master);
+    master.connect(compressor).connect(audio.destination);
 
     const voices = [
       { frequency: 110, type: "sine", level: .52 },
@@ -6251,13 +6260,35 @@ tente enxergar além da imagem.`
       return { oscillator, gain };
     });
 
+    const noiseLength = audio.sampleRate * 2;
+    const noiseBuffer = audio.createBuffer(2, noiseLength, audio.sampleRate);
+    for (let channel = 0; channel < noiseBuffer.numberOfChannels; channel++) {
+      const data = noiseBuffer.getChannelData(channel);
+      for (let i = 0; i < noiseLength; i++) data[i] = Math.random() * 2 - 1;
+    }
+    const noiseSource = audio.createBufferSource();
+    const noiseFilter = audio.createBiquadFilter();
+    const noiseGain = audio.createGain();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
+    noiseFilter.type = "lowpass";
+    noiseFilter.frequency.value = 7200;
+    noiseFilter.Q.value = .15;
+    noiseGain.gain.value = .82;
+    noiseSource.connect(noiseFilter).connect(noiseGain).connect(master);
+    noiseSource.start();
+
     lfo.type = "sine";
     lfo.frequency.value = .065;
     lfoDepth.gain.value = .012;
     lfo.connect(lfoDepth).connect(master.gain);
     lfo.start();
 
-    ambientNodes = [{ master, filter, lfo, lfoDepth }, ...voices];
+    ambientNodes = [
+      { master, filter, compressor, lfo, lfoDepth },
+      { source: noiseSource, noiseFilter, gain: noiseGain },
+      ...voices
+    ];
 
     const notes = [220, 293.66, 246.94, 329.63];
     let index = 0;
@@ -6272,12 +6303,16 @@ tente enxergar além da imagem.`
 
     ambientNodes.forEach(node => {
       try { node.oscillator?.stop(); } catch (_) {}
+      try { node.source?.stop(); } catch (_) {}
       try { node.lfo?.stop(); } catch (_) {}
       try { node.oscillator?.disconnect(); } catch (_) {}
+      try { node.source?.disconnect(); } catch (_) {}
       try { node.gain?.disconnect(); } catch (_) {}
       try { node.lfo?.disconnect(); } catch (_) {}
       try { node.lfoDepth?.disconnect(); } catch (_) {}
       try { node.filter?.disconnect(); } catch (_) {}
+      try { node.noiseFilter?.disconnect(); } catch (_) {}
+      try { node.compressor?.disconnect(); } catch (_) {}
       try { node.master?.disconnect(); } catch (_) {}
     });
     ambientNodes = [];
