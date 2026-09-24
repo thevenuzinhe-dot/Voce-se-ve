@@ -402,6 +402,16 @@
       gap: 10px;
     }
 
+    .camera-continue-hint {
+      margin: 0 0 4px;
+      text-align: center;
+      color: #4b4b47;
+      font-size: clamp(1rem, 2.6vw, 1.18rem);
+      line-height: 1.45;
+      font-weight: 600;
+      animation: questionFadeOnce .8s ease both;
+    }
+
     .photo-caption {
       text-align: center;
       margin: 24px auto;
@@ -1577,6 +1587,10 @@
     </div>
 
     <div class="camera-actions">
+
+      <p class="camera-continue-hint" id="captureHint" hidden>
+        Para continuar, toque no botão abaixo.
+      </p>
 
       <button class="btn" id="captureButton" hidden>
         Guardar este instante por alguns segundos
@@ -5346,6 +5360,7 @@ tente enxergar além da imagem.`
   const photoCanvas = $("photoCanvas");
   const finalPhotoCanvas = $("finalPhotoCanvas");
   const captureButton = $("captureButton");
+  const captureHint = $("captureHint");
   const cameraMessage = $("cameraMessage");
   const photoScreen = $("photoScreen");
   const photoCaption = $("photoCaption");
@@ -5883,6 +5898,7 @@ tente enxergar além da imagem.`
 
   function showCameraMoment() {
     captureButton.hidden = true;
+    captureHint.hidden = true;
     captureButton.classList.remove("just-revealed");
     cameraScreen.classList.remove("camera-color-return");
     showScreen("cameraScreen");
@@ -5891,6 +5907,7 @@ tente enxergar além da imagem.`
     if (useDelayedReflection) startDelayedReflection();
     const revealAt = useDelayedReflection ? 11200 : 8200;
     later(() => {
+      captureHint.hidden = false;
       captureButton.hidden = false;
       captureButton.classList.add("just-revealed");
     }, revealAt);
@@ -6187,7 +6204,7 @@ tente enxergar além da imagem.`
   function clearSession() {
     clearTimers(); stopCamera(); stopLastLook(); clearPhoto();
     currentQuestions = []; sessionInterludes = []; currentQuestionIndex = 0;
-    interactionLocked = false; holdCompleted = false; captureButton.disabled = false; captureButton.hidden = true;
+    interactionLocked = false; holdCompleted = false; captureButton.disabled = false; captureButton.hidden = true; captureHint.hidden = true;
     answersContainer.innerHTML = ""; questionText.textContent = ""; progressBar.style.width = "0%";
     photoCaption.textContent = ""; cameraMessage.textContent = ""; cameraScreen.classList.remove("camera-color-return");
     cameraError.style.display = "none"; cameraError.textContent = "";
